@@ -46,6 +46,47 @@
   "permissions": {
     "rules": [
       {
+        "capability": "fs_read",
+        "match": [
+          "**/.env",
+          "**/.env.*",
+          "**/*.pem",
+          "**/*.key",
+          "**/*.pfx",
+          "**/*.p12",
+          "**/*.jks",
+          "**/*.keystore",
+          "**/id_rsa*",
+          "**/id_ed25519*",
+          "**/id_ecdsa*",
+          "**/*.tfstate",
+          "**/*.tfstate.*",
+          "**/*.tfvars",
+          "**/.npmrc",
+          "**/.pypirc",
+          "**/.netrc",
+          "**/.git-credentials",
+          "**/.git/config",
+          "**/credentials",
+          "**/credentials*.json",
+          "**/secret.*",
+          "**/secrets.*",
+          "**/.aws/**",
+          "**/.azure/**",
+          "**/.kube/**",
+          "**/.ssh/**",
+          "**/.gnupg/**",
+          "**/.docker/config.json"
+        ],
+        "exclude": [
+          "**/.env.example",
+          "**/.env.sample",
+          "**/.env.template",
+          "**/*.tfvars.example"
+        ],
+        "effect": "deny"
+      },
+      {
         "capability": "shell",
         "match": [
           "hadolint *",
@@ -101,5 +142,15 @@
     "revision": 3,
     "fingerprint": "sha256:c5040b21f2ccd97ec971a5b7e946fc15b79a918bb17d557a26a75a6f63dd5559",
     "source": "sha256:21c577429129037f7b37fd368f48ac85a42d269979fd7b7fefb82cc383c81d91"
-  }
+  },
+  "hooks": [
+    {
+      "name": "guardrail-segredos",
+      "trigger": "PreToolUse",
+      "action": {
+        "type": "command",
+        "command": "bash ~/.kiro/hooks/bloquear-segredos.sh"
+      }
+    }
+  ]
 }

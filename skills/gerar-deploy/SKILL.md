@@ -1,6 +1,6 @@
 ---
 name: gerar-deploy
-description: Gera artefatos de deploy a partir de docs/deploy/analise.md. Para hospedagem estática (sem processo em execução), Terraform de armazenamento privado + CDN na AWS (S3 + CloudFront) ou Azure (Storage Account + Front Door). Para AKS, manifests YAML puros (Deployment, Service, Ingress, ConfigMap) com probes, requests e limits e segredos do cofre, prontos para PR no repositório de manifests. Para ECS, Terraform (task definition, service, target group, log group e IAM de menor privilégio). Nunca aplica nada.
+description: Gera artefatos de deploy a partir de docs/deploy/analise.md e docs/deploy/contexto.md, na ferramenta de IaC do contexto (Terraform, OpenTofu, Bicep, Pulumi, CDK ou CloudFormation). Para hospedagem estática (sem processo em execução), armazenamento privado + CDN na AWS (S3 + CloudFront) ou Azure (Storage Account + Front Door). Para AKS, manifests YAML puros (Deployment, Service, Ingress, ConfigMap) com probes, requests e limits e segredos do cofre, prontos para PR no repositório de manifests. Para ECS, task definition, service, target group, log group e IAM de menor privilégio). Nunca aplica nada.
 ---
 
 # Skill: gerar-deploy
@@ -22,7 +22,11 @@ $ARGUMENTS
    serverless, PaaS de aplicação), **pare** e informe que o kit ainda não
    tem gerador para ele. Não adapte a aplicação a um destino suportado por
    conta própria.
-3. Siga as references carregadas (`gitops.md`, `nomenclatura.md`,
+3. Leia `docs/deploy/contexto.md` (gerado pelo `analyzer`). Dele vêm a
+   cloud, a **ferramenta de IaC** e a versão, o backend de state, o
+   registry e o cofre de segredos. Se a ferramenta de IaC estiver
+   `a definir`, pergunte e pare.
+4. Siga as references carregadas (`gitops.md`, `nomenclatura.md`,
    `checklist-producao.md`). Quando uma reference ainda tiver placeholders,
    mantenha os placeholders nos artefatos em vez de inventar valores.
 
@@ -38,6 +42,35 @@ $ARGUMENTS
 - **Nomes seguem `nomenclatura.md`.** Valores desconhecidos ficam como
   `<placeholder>`.
 - Não alterar código da aplicação nem o Dockerfile.
+
+## Ferramenta de IaC
+
+As seções de destino abaixo descrevem **quais recursos e configurações** são
+exigidos. O **formato** segue a ferramenta de `docs/deploy/contexto.md`:
+
+| Ferramenta | Formato gerado | Validação permitida |
+|------------|----------------|---------------------|
+| Terraform | `*.tf`, `terraform.tfvars.example`, backend com placeholders | `terraform fmt`, `terraform init -backend=false`, `terraform validate` |
+| OpenTofu | igual ao Terraform, com `required_version` do OpenTofu | `tofu fmt`, `tofu init -backend=false`, `tofu validate` |
+| Bicep | `main.bicep`, módulos em `modules/`, `<ambiente>.bicepparam` com placeholders | `bicep build`, `bicep lint` |
+| Pulumi | projeto na linguagem informada no contexto (pergunte se faltar), `Pulumi.yaml` e `Pulumi.<ambiente>.yaml` sem segredos | nenhuma (registre como pendência) |
+| AWS CDK | app na linguagem informada no contexto, stack por destino | nenhuma (registre como pendência) |
+| CloudFormation | `template.yaml` e `parameters-<ambiente>.json` com placeholders | nenhuma (registre como pendência) |
+
+Regras:
+
+- Ferramenta incompatível com a cloud (exemplo: Bicep para AWS, CDK para
+  Azure): **pare** e registre a divergência.
+- Se o contexto apontar **módulos internos do time**, use-os em vez de
+  recursos crus e mantenha a versão do módulo fixa.
+- Se o código de IaC fica em **repositório separado** (`<iac-repo>`),
+  gere em `deploy/` mesmo assim e documente que precisa ser levado ao
+  `<iac-repo>` por PR.
+- Versões de provider, módulo e ferramenta sempre fixas.
+- As regras de segurança de cada destino (sem `*` em IAM, sem segredo com
+  valor, armazenamento privado etc.) valem para qualquer ferramenta.
+- Onde as seções abaixo citam recursos Terraform (`aws_...`), use o
+  equivalente da ferramenta escolhida.
 
 ## Destino AKS (GitOps, YAML puro)
 
@@ -63,9 +96,11 @@ Regras específicas:
 - Não gere `Namespace` se a reference `gitops.md` disser que o namespace é
   criado por outro processo.
 
-## Destino ECS (Terraform)
+## Destino ECS (IaC)
 
-Gere em `deploy/ecs/` no repositório da aplicação:
+Gere em `deploy/ecs/` no repositório da aplicação. Os nomes de arquivo abaixo são os de Terraform/OpenTofu; com outra
+ferramenta, use a estrutura da tabela "Ferramenta de IaC" cobrindo os
+mesmos recursos.
 
 | Arquivo | Conteúdo |
 |---------|----------|
@@ -84,10 +119,10 @@ Regras específicas:
 - Tags padrão conforme `nomenclatura.md`.
 - Backend do state: deixar bloco com placeholders (`<state-bucket>`,
   `<state-key>`), sem valores reais.
-- Pode sugerir `terraform fmt` e `terraform validate`, mas nunca `plan`
-  com credencial nem `apply`.
+- Rode só a validação permitida para a ferramenta (tabela acima). Nunca
+  `plan`/`preview`/`what-if` com credencial nem `apply`/`up`/`deploy`.
 
-## Destino hospedagem estática (Terraform)
+## Destino hospedagem estática (IaC)
 
 Use quando a seção 9 da análise indicar que a aplicação **não precisa de
 processo em execução** (o build gera apenas arquivos estáticos). Não há
@@ -122,7 +157,9 @@ Princípios para qualquer cloud:
 - Não criar zona DNS: receber por variável, salvo pedido explícito.
 - Tags padrão e nomes conforme `nomenclatura.md`.
 
-Gere em `deploy/estatico/` no repositório da aplicação:
+Gere em `deploy/estatico/` no repositório da aplicação. Os nomes de arquivo abaixo são os de Terraform/OpenTofu; com outra
+ferramenta, use a estrutura da tabela "Ferramenta de IaC" cobrindo os
+mesmos recursos.
 
 | Arquivo | Conteúdo |
 |---------|----------|
@@ -152,7 +189,7 @@ O endpoint do static website continua acessível diretamente: registre isso
 como risco e, se o time exigir origem privada, proponha Front Door Premium
 com Private Link para o blob como alternativa em ADR.
 
-**Publicação** do conteúdo não é Terraform: documente os comandos que o
+**Publicação** do conteúdo não é IaC: documente os comandos que o
 **pipeline** vai rodar, sem executá-los. Envio do diretório do artefato com
 os headers de cache certos (HTML separado dos assets), remoção de arquivos
 antigos e invalidação/purge da CDN só nos caminhos de HTML. A identidade do

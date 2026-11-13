@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # Instala o devops-agent-kit em ~/.kiro/ por meio de links simbólicos.
 #
-# Pastas linkadas inteiras: steering, agents, skills, references, templates.
+# Pastas linkadas inteiras: steering, agents, skills, references, templates, hooks.
 # Prompts: o Kiro CLI só descobre ~/.kiro/prompts/*.md (sem subpastas), então
 # cada arquivo de prompts/exemplos/ e prompts/reais/ é linkado individualmente
 # dentro de ~/.kiro/prompts/.
@@ -13,7 +13,7 @@ set -euo pipefail
 
 KIT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 KIRO_DIR="${HOME}/.kiro"
-PASTAS=(steering agents skills references templates)
+PASTAS=(steering agents skills references templates hooks)
 
 erros=0
 

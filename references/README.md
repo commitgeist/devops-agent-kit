@@ -20,11 +20,12 @@ e cada agente carrega só os arquivos de que precisa, pelo campo
 
 ## Quais agentes leem cada arquivo
 
-| Arquivo | subir-app | analyzer | containerizer | deployer |
-|---------|:---------:|:--------:|:-------------:|:--------:|
-| `gitops.md` | | | | sim |
-| `nomenclatura.md` | | | | sim |
-| `checklist-producao.md` | sim | sim | sim | sim |
+| Arquivo | subir-app | analyzer | containerizer | deployer | pipeliner |
+|---------|:---------:|:--------:|:-------------:|:--------:|:---------:|
+| `gitops.md` | | | | sim | |
+| `nomenclatura.md` | | | | sim | sim |
+| `checklist-producao.md` | sim | sim | sim | sim | sim |
+| `padroes-do-time.md` | sim | sim | | sim | sim |
 
 `nomenclatura.md` e `checklist-producao.md` cobrem AKS, ECS e hospedagem
 estática (AWS e Azure).

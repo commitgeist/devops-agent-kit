@@ -24,9 +24,58 @@ kiro-cli chat --agent subir-app
 @real-fluxo-completo Destino AKS. O dev disse que a app usa Redis e Postgres. Não mandaram .env.example.
 ```
 
-O `subir-app` roda a análise, mostra o resultado e as perguntas abertas e
-espera sua confirmação. Depois gera Dockerfile e artefatos de deploy em
-paralelo. Nada é aplicado e nada é commitado.
+O `subir-app` confirma o contexto de entrega (cloud, ferramenta de IaC,
+plataforma de CI/CD), roda a análise, mostra o resultado e as perguntas
+abertas e espera sua confirmação. Depois gera, em paralelo e só o que se
+aplica ao destino, Dockerfile, IaC e pipeline. Nada é aplicado, nada é
+commitado e nenhum arquivo de segredo é lido.
+
+## Contexto de entrega: como informar suas ferramentas
+
+O kit não assume ferramenta. Cloud, IaC (Terraform, OpenTofu, Bicep,
+Pulumi, CDK, CloudFormation) e CI/CD (GitHub Actions, Azure DevOps, Gitea
+Actions, Bitbucket, GitLab CI, Jenkins) ficam em `docs/deploy/contexto.md`
+**no repositório da aplicação**, versionado junto com ela. Três formas de
+preencher, da mais rápida para a mais completa:
+
+1. **Deixar o `subir-app` perguntar.** Ele detecta o que dá no repositório
+   (pastas de pipeline, arquivos de IaC), usa os padrões de
+   `references/padroes-do-time.md` e faz **uma** pergunta em formato de
+   formulário para você só confirmar ou corrigir.
+2. **Passar tudo na primeira mensagem** com `@real-contexto-entrega`.
+3. **Deixar o arquivo pronto**, copiando
+   `templates/deploy/contexto-entrega.md` para `docs/deploy/contexto.md`.
+
+Os valores ficam salvos, então a pergunta acontece uma vez por aplicação.
+Os padrões da empresa (por exemplo "sempre Terraform + Azure DevOps") vão
+em `references/padroes-do-time.md`; deixe `<a-definir>` no que deve ser
+sempre perguntado.
+
+## Guardrails de segredos
+
+Três camadas independentes, em todos os agentes:
+
+| Camada | Onde | O que faz |
+|--------|------|-----------|
+| Permissão | `permissions.rules` (`fs_read` com `deny`) em cada JSON | O Kiro recusa a leitura de `.env`, chaves, certificados, `*.tfvars`, `*.tfstate`, credenciais de ferramentas e `.git/config` (`.env.example` e `*.tfvars.example` liberados) |
+| Hook | `hooks/bloquear-segredos.sh` (`PreToolUse`) | Bloqueia os mesmos caminhos em qualquer ferramenta e comandos como `env`, `printenv`, `aws configure get`, `az account get-access-token`, `gh auth token`, `kubectl get secret`, `terraform output` |
+| Steering | `steering/guardrails-segredos.md` (`inclusion: always`) | Orienta o modelo a levantar só **nomes** de variáveis pelo código, nunca repetir segredo colado e nunca contornar bloqueio |
+
+O hook precisa de `python3`; sem ele, as outras duas camadas continuam
+valendo.
+
+## MCP
+
+Os agentes carregam os servidores MCP configurados no Kiro
+(`includeMcpJson`). Servidores de documentação (AWS, Microsoft Learn,
+Terraform) ajudam a conferir a boa prática atual; servidores de plataforma
+(GitHub, Azure DevOps, Gitea) servem para consulta e pedem confirmação a
+cada uso. Para configurar, veja `mcp/README.md`:
+
+```bash
+./mcp/configurar-mcp.sh                      # catálogo
+./mcp/configurar-mcp.sh --aplicar aws-docs   # adiciona
+```
 
 ## O que é cada pasta
 
@@ -37,7 +86,9 @@ paralelo. Nada é aplicado e nada é commitado.
 | `agents/` | **Agentes**: um JSON por agente (ferramentas, permissões, skills e references que carrega) e as instruções em `agents/instrucoes/` | Quando você inicia `kiro-cli chat --agent <nome>` ou quando o orquestrador delega | `~/.kiro/agents` |
 | `references/` | **Conhecimento do time**: fluxo GitOps, padrão de nomes, checklist de produção. Dados, não procedimentos | Carregados só pelos agentes que declaram o arquivo em `resources` | `~/.kiro/references` |
 | `prompts/` | **Prompts salvos** prontos para invocar com `@<nome>`: `exemplos/` (didáticos) e `reais/` (dia a dia) | Quando você digita `@<nome>` no início da mensagem | um link por arquivo em `~/.kiro/prompts/` |
-| `templates/` | **Modelos de documento** (ADR) | Quando um agente ou você precisa criar o documento | `~/.kiro/templates` |
+| `hooks/` | **Hooks** dos agentes (guardrail de segredos no `PreToolUse`) | Antes de cada ferramenta, em todos os agentes do kit | `~/.kiro/hooks` |
+| `mcp/` | Catálogo e script para configurar servidores **MCP** | Quando você roda `mcp/configurar-mcp.sh` | não é instalada (o script grava em `~/.kiro/settings/mcp.json`) |
+| `templates/` | **Modelos de documento** (ADR, contexto de entrega) | Quando um agente ou você precisa criar o documento | `~/.kiro/templates` |
 | `docs/agents/` | **Documentação humana** de cada agente: papel, skills, permissões, exemplos | Leitura humana, não é carregada pelo Kiro | não é instalada |
 
 Resumo da diferença:
@@ -54,28 +105,31 @@ Resumo da diferença:
                     ┌──────────────┐
   você ───────────► │  subir-app   │  orquestrador (não escreve arquivos)
                     └──────┬───────┘
+                           │ 0. confirma cloud, IaC e CI/CD
+                           │    (uma pergunta, só se faltar)
                            │ 1. delega
                            ▼
                     ┌──────────────┐
                     │   analyzer   │  skill analisar-repo
                     └──────┬───────┘  gera docs/deploy/analise.md
+                           │          e docs/deploy/contexto.md
                            │
                            ▼
               2. subir-app mostra a análise
                  e ESPERA SUA CONFIRMAÇÃO
                            │
-              3. delega (containerizer só se o destino exigir container)
-                ┌──────────┴──────────┐
-                ▼                     ▼
-        ┌───────────────┐     ┌──────────────┐
-        │ containerizer │     │   deployer   │
-        └───────────────┘     └──────────────┘
-        skill                 skill gerar-deploy
-        gerar-dockerfile      AKS: deploy/aks/*.yaml
-        Dockerfile e          ECS: deploy/ecs/*.tf
-        .dockerignore         estático: deploy/estatico/*.tf
-                │                     │
-                └──────────┬──────────┘
+              3. delega em paralelo só o que se aplica
+                ┌──────────────┼──────────────┐
+                ▼              ▼              ▼
+        ┌──────────────┐ ┌───────────┐ ┌───────────┐
+        │containerizer │ │ deployer  │ │ pipeliner │
+        └──────────────┘ └───────────┘ └───────────┘
+        gerar-dockerfile gerar-deploy  gerar-pipeline
+        só se exigir     IaC na        GitHub, Azure DevOps,
+        container        ferramenta    Gitea, Bitbucket,
+                         do contexto   GitLab, Jenkins
+                │              │              │
+                └──────────────┼──────────────┘
                            ▼
               4. subir-app consolida: arquivos, segredos
                  esperados no cofre, placeholders e checklist
@@ -87,6 +141,7 @@ Resumo da diferença:
 | 2 | `analyzer` | `analisar-repo` | `docs/deploy/` | `docs/agents/analyzer.md` |
 | 3 | `containerizer` | `gerar-dockerfile` | `Dockerfile`, `.dockerignore`, `docs/deploy/` | `docs/agents/containerizer.md` |
 | 3 | `deployer` | `gerar-deploy` | `deploy/`, `docs/deploy/` | `docs/agents/deployer.md` |
+| 3 | `pipeliner` | `gerar-pipeline` | arquivos de pipeline da plataforma, `docs/deploy/` | `docs/agents/pipeliner.md` |
 
 Cada agente também pode ser usado sozinho, por exemplo
 `kiro-cli chat --agent analyzer`. A delegação usa a ferramenta `subagent`
@@ -196,7 +251,7 @@ cd <caminho-local>
 O script:
 
 - Cria links simbólicos em `~/.kiro/` para as pastas `steering`, `agents`,
-  `skills`, `references` e `templates`.
+  `skills`, `references`, `templates` e `hooks`.
 - Cria a pasta `~/.kiro/prompts/` e linka nela cada arquivo de
   `prompts/exemplos/` e `prompts/reais/`. Isso é necessário porque o Kiro CLI
   só descobre prompts em `~/.kiro/prompts/*.md`, sem subpastas.
@@ -242,7 +297,8 @@ linkados arquivo por arquivo).
 | Terraform de hospedagem estática da aplicação | Gerado em `deploy/estatico/` no repositório da aplicação |
 | Terraform de ECS da aplicação | Gerado em `deploy/ecs/` no repositório da aplicação (ou onde `<padrao-do-time>` definir) |
 | ADRs e decisões técnicas | `docs/adr/` no repositório da aplicação |
-| Pipelines CI/CD da aplicação | Repositório da aplicação |
+| Contexto de entrega (`docs/deploy/contexto.md`) | Repositório da aplicação |
+| Pipelines CI/CD da aplicação | Repositório da aplicação (gerados pelo `pipeliner`) |
 | Segredos e configurações de ambiente | Cofre da cloud (Key Vault ou Secrets Manager) |
 
 ## Estrutura
@@ -257,6 +313,7 @@ devops-agent-kit/
 │   ├── analyzer.json
 │   ├── containerizer.json
 │   ├── deployer.json
+│   ├── pipeliner.json
 │   └── instrucoes/                # Prompt de sistema de cada agente
 ├── docs/
 │   └── agents/                    # Documentação humana dos agentes
@@ -264,16 +321,23 @@ devops-agent-kit/
 │   ├── README.md                  # Como invocar cada prompt
 │   ├── exemplos/                  # Prompts didáticos (exemplo-*.md)
 │   └── reais/                     # Prompts do dia a dia (real-*.md)
+├── hooks/
+│   └── bloquear-segredos.sh       # Guardrail PreToolUse
+├── mcp/                           # Catálogo e configurar-mcp.sh
 ├── references/                    # Conhecimento do time (completar)
 ├── skills/
 │   ├── analisar-repo/             # SKILL.md e README.md
 │   ├── gerar-dockerfile/
-│   └── gerar-deploy/
+│   ├── gerar-deploy/
+│   └── gerar-pipeline/
 ├── steering/
-│   └── devops-base.md             # inclusion: always
+│   ├── devops-base.md             # inclusion: always
+│   └── guardrails-segredos.md     # inclusion: always
 └── templates/
-    └── adr/
-        └── adr-template.md
+    ├── adr/
+    │   └── adr-template.md
+    └── deploy/
+        └── contexto-entrega.md
 ```
 
 ## Convenções
