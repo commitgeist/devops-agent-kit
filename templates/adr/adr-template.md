@@ -29,7 +29,7 @@ Exemplo: "Usaremos X para Y porque Z."
 ## Consequências
 
 <!--
-Liste os efeitos desta decisão — positivos, negativos e neutros.
+Liste os efeitos desta decisão: positivos, negativos e neutros.
 Inclua débitos técnicos conhecidos e ações de acompanhamento necessárias.
 -->
 

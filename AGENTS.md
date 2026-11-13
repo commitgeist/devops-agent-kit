@@ -1,4 +1,4 @@
-# AGENTS.md — devops-agent-kit
+# AGENTS.md: devops-agent-kit
 
 Este arquivo contém regras que se aplicam **apenas à manutenção deste kit**.
 Para regras gerais de DevOps válidas em qualquer repositório, veja
