@@ -1,0 +1,66 @@
+# devops-agent-kit: guardrails de segredos no escopo do usuário.
+#
+# Instalado pelo install.sh como ~/.kiro/settings/permissions.yaml.
+# Vale para TODOS os agentes do Kiro (inclusive o padrão), em qualquer
+# projeto. Um "deny" aqui vence qualquer "allow" de agente ou workspace.
+#
+# Mantenha esta lista igual aos caminhos do hooks/bloquear-segredos.sh e da
+# steering/guardrails-segredos.md (as três camadas cobrem o mesmo conjunto).
+
+rules:
+  - capability: fs_read
+    effect: deny
+    match:
+      - "**/.env"
+      - "**/.env.*"
+      - "**/*.pem"
+      - "**/*.key"
+      - "**/*.pfx"
+      - "**/*.p12"
+      - "**/*.jks"
+      - "**/*.keystore"
+      - "**/*.kdbx"
+      - "**/id_dsa*"
+      - "**/id_rsa*"
+      - "**/id_ed25519*"
+      - "**/id_ecdsa*"
+      - "**/*.tfstate"
+      - "**/*.tfstate.*"
+      - "**/*.tfvars"
+      - "**/.npmrc"
+      - "**/.pypirc"
+      - "**/.netrc"
+      - "**/.git-credentials"
+      - "**/.git/config"
+      - "**/credentials"
+      - "**/credentials*.json"
+      - "**/secret.*"
+      - "**/secrets.*"
+      - "**/.aws/**"
+      - "**/.azure/**"
+      - "**/.kube/**"
+      - "**/.ssh/**"
+      - "**/.gnupg/**"
+      - "**/.docker/config.json"
+    exclude:
+      - "**/.env.example"
+      - "**/.env.sample"
+      - "**/.env.template"
+      - "**/.env.dist"
+      - "**/*.tfvars.example"
+
+  - capability: shell
+    effect: deny
+    match:
+      - "env"
+      - "set"
+      - "printenv*"
+      - "export -p*"
+      - "aws configure get*"
+      - "aws configure export-credentials*"
+      - "az account get-access-token*"
+      - "gh auth token*"
+      - "kubectl get secret*"
+      - "terraform output*"
+      - "tofu output*"
+      - "docker login*"

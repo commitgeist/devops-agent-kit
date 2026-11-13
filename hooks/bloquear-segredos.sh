@@ -71,7 +71,7 @@ SENSIVEL = [
     r"(^|[/\\\s])\.git[/\\]config($|[\s;|&)])",
     r"(^|[/\\\s])\.(npmrc|pypirc|netrc|git-credentials)($|[\s;|&)])",
     r"(^|[/\\\s])credentials([\w.-]*\.json)?($|[\s;|&)])",
-    r"(^|[/\\\s])secrets?\.(ya?ml|json|env|txt)($|[\s;|&)])",
+    r"(^|[/\\\s])secrets?\.[\w.-]+($|[\s;|&)])",
     r"\.tfstate(\.backup)?($|[\s;|&)])",
     rf"\.tfvars(?!\.{EXEMPLO}\b)($|[\s;|&)])",
 ]
@@ -86,6 +86,8 @@ COMANDOS_PROIBIDOS = [
     r"\btofu\s+output\b",
     r"\bdocker\s+login\b",
     r"/proc/[^\s]*/environ",
+    # Scanner de segredo só com saída mascarada.
+    r"\bgitleaks\b(?!.*--redact)",
 ]
 
 def casa(lista, texto):

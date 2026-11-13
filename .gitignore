@@ -1,0 +1,3 @@
+*.bak
+# Gerado automaticamente pelo Kiro em ~/.kiro/agents (linkada para cá)
+agents/agent_config.json.example

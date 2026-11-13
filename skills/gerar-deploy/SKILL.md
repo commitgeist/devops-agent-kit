@@ -26,7 +26,9 @@ $ARGUMENTS
    cloud, a **ferramenta de IaC** e a versão, o backend de state, o
    registry e o cofre de segredos. Se a ferramenta de IaC estiver
    `a definir`, pergunte e pare.
-4. Siga as references carregadas (`gitops.md`, `nomenclatura.md`,
+4. Use as references confirmadas (lista recebida ou registrada em
+   `docs/deploy/contexto.md`; índice em `~/.kiro/references/README.md`),
+   em especial `iac/` para módulos e exemplos do time. Siga as references carregadas (`gitops.md`, `nomenclatura.md`,
    `checklist-producao.md`). Quando uma reference ainda tiver placeholders,
    mantenha os placeholders nos artefatos em vez de inventar valores.
 

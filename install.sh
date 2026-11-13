@@ -3,8 +3,12 @@
 #
 # Pastas linkadas inteiras: steering, agents, skills, references, templates, hooks.
 # Prompts: o Kiro CLI só descobre ~/.kiro/prompts/*.md (sem subpastas), então
-# cada arquivo de prompts/exemplos/ e prompts/reais/ é linkado individualmente
+# cada arquivo de prompts/reais/ é linkado individualmente
 # dentro de ~/.kiro/prompts/.
+# Permissões globais: settings/permissions.yaml é linkado como
+# ~/.kiro/settings/permissions.yaml (guardrails de segredos para todos os
+# agentes). Se você já tiver esse arquivo, o script não mexe nele e mostra
+# como mesclar.
 #
 # Regra de segurança: nada que não seja link simbólico é sobrescrito. Links
 # simbólicos que apontam para outro lugar (ou quebrados) são reapontados.
@@ -62,6 +66,15 @@ elif [[ -e "${KIRO_DIR}/prompts" && ! -d "${KIRO_DIR}/prompts" ]]; then
   echo "ERRO: ${KIRO_DIR}/prompts existe e não é diretório."
   conflitos=$((conflitos + 1))
 fi
+PERMISSOES="${KIRO_DIR}/settings/permissions.yaml"
+if [[ -e "$PERMISSOES" && ! -L "$PERMISSOES" ]]; then
+  echo "ERRO: ${PERMISSOES} já existe e não é link simbólico."
+  echo "      Mescle as regras de ${KIT_DIR}/settings/permissions.yaml no seu"
+  echo "      arquivo (os guardrails de segredos valem para todos os agentes)"
+  echo "      ou mova o seu arquivo e rode de novo:"
+  echo "      mv \"${PERMISSOES}\" \"${PERMISSOES}.bak\""
+  conflitos=$((conflitos + 1))
+fi
 if (( conflitos > 0 )); then
   echo
   echo "Nenhuma alteração foi feita. Resolva os itens acima e rode o install.sh de novo."
@@ -74,6 +87,11 @@ echo "Pastas:"
 for pasta in "${PASTAS[@]}"; do
   link_item "${KIT_DIR}/${pasta}" "${KIRO_DIR}/${pasta}"
 done
+
+echo
+echo "Permissões globais:"
+mkdir -p "${KIRO_DIR}/settings"
+link_item "${KIT_DIR}/settings/permissions.yaml" "$PERMISSOES"
 
 echo
 echo "Prompts:"
@@ -91,7 +109,7 @@ for link in "${KIRO_DIR}/prompts"/*.md; do
 done
 
 shopt -s nullglob
-for arquivo in "${KIT_DIR}"/prompts/exemplos/*.md "${KIT_DIR}"/prompts/reais/*.md; do
+for arquivo in "${KIT_DIR}"/prompts/reais/*.md; do
   link_item "$arquivo" "${KIRO_DIR}/prompts/$(basename "$arquivo")"
 done
 shopt -u nullglob

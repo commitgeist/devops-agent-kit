@@ -1,15 +1,18 @@
-# AGENTS.md: devops-agent-kit
+# AGENTS.md: manutenção do devops-agent-kit
 
-Este arquivo contém regras que se aplicam **apenas à manutenção deste kit**.
-Para regras gerais de DevOps válidas em qualquer repositório, veja
-`steering/devops-base.md`.
+Regras para quem altera **este kit**. Regras de DevOps para qualquer
+repositório ficam em `steering/`.
 
-## Padrões de código neste kit
-
-- Nenhum valor específico de aplicação, cliente, servidor ou pessoa.
-- Usar exclusivamente placeholders no formato `<placeholder>`.
-
-## Decisões de infraestrutura genéricas
-
-Decisões genéricas de infraestrutura podem ser registradas como ADRs neste kit,
-em `docs/adr/`, usando o template em `templates/adr/adr-template.md`.
+- Nenhum valor específico de aplicação, cliente, servidor ou pessoa: só
+  placeholders `<placeholder>`. Textos em português do Brasil.
+- Procedimento vai na skill (`skills/<nome>/SKILL.md`); o agente
+  (`agents/<nome>.json` + `agents/instrucoes/<nome>.md`) só diz papel,
+  skills e limites. Permissões vão em `permissions.rules` (Kiro v3).
+- As três camadas de segredo cobrem o mesmo conjunto: ao mudar uma, mude
+  `settings/permissions.yaml`, `hooks/bloquear-segredos.sh` e
+  `steering/guardrails-segredos.md`.
+- Reference nova: entra no índice `references/README.md`.
+- Agente, skill ou prompt novo: atualize as tabelas do `README.md` e de
+  `prompts/README.md`.
+- Antes do PR: `kiro-cli agent validate --path agents/<nome>.json` em todos
+  os agentes e `bash -n` nos scripts.

@@ -54,6 +54,15 @@
 - [ ] Publicação e invalidação de cache pelo pipeline, com identidade
       federada (OIDC) e permissão mínima.
 
+## Segurança (DevSecOps)
+
+- [ ] Varredura de segredos em todo PR (e push protection, se houver).
+- [ ] SCA de dependências em PR e agendado.
+- [ ] Scan de IaC em PR que altera IaC.
+- [ ] Scan da imagem antes do push, falhando em `CRITICAL` com correção.
+- [ ] SAST em PR.
+- [ ] Exceções de segurança com justificativa e data de expiração.
+
 ## Observabilidade
 
 - [ ] Logs em stdout e stderr.

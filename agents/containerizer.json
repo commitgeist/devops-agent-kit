@@ -1,6 +1,6 @@
 {
   "name": "containerizer",
-  "description": "Gera ou revisa Dockerfile multi-stage e .dockerignore com a skill gerar-dockerfile, a partir de docs/deploy/analise.md. Não roda quando a análise indica que o destino não exige container.",
+  "description": "Especialista: gera ou revisa Dockerfile e .dockerignore com a skill gerar-dockerfile. Só roda quando o destino exige container.",
   "prompt": "file://./instrucoes/containerizer.md",
   "tools": [
     "glob",
@@ -9,82 +9,33 @@
     "shell",
     "write"
   ],
-  "allowedTools": [
-    "read",
-    "glob",
-    "grep"
-  ],
-  "toolsSettings": {
-    "write": {
-      "allowedPaths": [
-        "Dockerfile",
-        ".dockerignore",
-        "**/Dockerfile",
-        "**/.dockerignore",
-        "docs/deploy/**"
-      ]
-    },
-    "shell": {
-      "allowedCommands": [
-        "hadolint .*",
-        "docker build .*"
-      ],
-      "deniedCommands": [
-        "docker push.*",
-        "docker login.*",
-        ".*\\bkubectl\\b.*",
-        ".*\\bterraform\\b.*"
-      ],
-      "denyByDefault": true
-    }
-  },
   "resources": [
     "file://~/.kiro/steering/**/*.md",
-    "skill://~/.kiro/skills/gerar-dockerfile/SKILL.md",
-    "file://~/.kiro/references/checklist-producao.md"
+    "file://~/.kiro/references/README.md",
+    "file://~/.kiro/references/padroes-do-time.md",
+    "file://~/.kiro/references/checklist-producao.md",
+    "skill://~/.kiro/skills/gerar-dockerfile/SKILL.md"
   ],
   "permissions": {
     "rules": [
       {
-        "capability": "fs_read",
+        "capability": "fs_write",
         "match": [
-          "**/.env",
-          "**/.env.*",
-          "**/*.pem",
-          "**/*.key",
-          "**/*.pfx",
-          "**/*.p12",
-          "**/*.jks",
-          "**/*.keystore",
-          "**/id_rsa*",
-          "**/id_ed25519*",
-          "**/id_ecdsa*",
-          "**/*.tfstate",
-          "**/*.tfstate.*",
-          "**/*.tfvars",
-          "**/.npmrc",
-          "**/.pypirc",
-          "**/.netrc",
-          "**/.git-credentials",
-          "**/.git/config",
-          "**/credentials",
-          "**/credentials*.json",
-          "**/secret.*",
-          "**/secrets.*",
-          "**/.aws/**",
-          "**/.azure/**",
-          "**/.kube/**",
-          "**/.ssh/**",
-          "**/.gnupg/**",
-          "**/.docker/config.json"
+          "Dockerfile",
+          ".dockerignore",
+          "**/Dockerfile",
+          "**/.dockerignore",
+          "docs/deploy/**"
         ],
-        "exclude": [
-          "**/.env.example",
-          "**/.env.sample",
-          "**/.env.template",
-          "**/*.tfvars.example"
-        ],
-        "effect": "deny"
+        "effect": "allow"
+      },
+      {
+        "capability": "fs_read",
+        "effect": "allow"
+      },
+      {
+        "capability": "skill",
+        "effect": "allow"
       },
       {
         "capability": "shell",
@@ -116,41 +67,7 @@
           "hadolint *"
         ],
         "effect": "deny"
-      },
-      {
-        "capability": "fs_write",
-        "match": [
-          "Dockerfile",
-          ".dockerignore",
-          "**/Dockerfile",
-          "**/.dockerignore",
-          "docs/deploy/**"
-        ],
-        "effect": "allow"
-      },
-      {
-        "capability": "fs_read",
-        "effect": "allow"
-      },
-      {
-        "capability": "skill",
-        "effect": "allow"
       }
     ]
-  },
-  "kiroUpgrade": {
-    "revision": 3,
-    "fingerprint": "sha256:c5040b21f2ccd97ec971a5b7e946fc15b79a918bb17d557a26a75a6f63dd5559",
-    "source": "sha256:21c577429129037f7b37fd368f48ac85a42d269979fd7b7fefb82cc383c81d91"
-  },
-  "hooks": [
-    {
-      "name": "guardrail-segredos",
-      "trigger": "PreToolUse",
-      "action": {
-        "type": "command",
-        "command": "bash ~/.kiro/hooks/bloquear-segredos.sh"
-      }
-    }
-  ]
+  }
 }

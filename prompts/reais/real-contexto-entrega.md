@@ -17,3 +17,5 @@ não pergunte de novo o que já está aqui. Itens deixados em branco ficam
 - Templates de pipeline / módulos do time: <caminho ou "nenhum">
 - Destino desejado (opcional, a análise vai validar): <destino>
 - Contexto do time de dev: <informações recebidas>
+
+Contexto adicional (sobrepõe os itens acima): $ARGUMENTS

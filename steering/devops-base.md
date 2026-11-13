@@ -5,6 +5,8 @@ inclusion: always
 # Regras base de DevOps
 
 Estas regras se aplicam a qualquer trabalho de DevOps neste workspace.
+Nos agentes do kit, as permissões já bloqueiam `apply`, `kubectl` e deploy;
+no agente padrão do Kiro, estas regras são o único freio.
 
 ## Ações destrutivas ou irreversíveis
 

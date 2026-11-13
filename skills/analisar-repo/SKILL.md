@@ -75,6 +75,9 @@ Siga esta ordem e anote a evidência de cada achado:
       não leia `.git/config`, cuja URL de remote pode conter token);
    4. o padrão em `padroes-do-time.md`;
    5. `a definir`.
+   Registre também as **references do time confirmadas** pelo usuário ou
+   pelo orquestrador; references que você julgar aplicáveis e que não
+   foram confirmadas vão como sugestão nas perguntas abertas.
    Itens `a definir` que impedem gerar IaC ou pipeline (cloud, ferramenta
    de IaC, plataforma de CI/CD) viram pergunta aberta.
 9. **Riscos:** segredos versionados, `.env` commitado, dependências sem

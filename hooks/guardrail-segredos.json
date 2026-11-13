@@ -1,0 +1,15 @@
+{
+  "version": "v1",
+  "hooks": [
+    {
+      "name": "guardrail-segredos",
+      "description": "devops-agent-kit: bloqueia leitura de arquivos de segredo e comandos que expõem credenciais, em qualquer agente.",
+      "trigger": "PreToolUse",
+      "action": {
+        "type": "command",
+        "command": "bash ~/.kiro/hooks/bloquear-segredos.sh"
+      },
+      "timeout": 10
+    }
+  ]
+}

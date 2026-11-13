@@ -1,6 +1,6 @@
 {
   "name": "pipeliner",
-  "description": "Gera o pipeline de CI/CD com a skill gerar-pipeline na plataforma do contexto de entrega (GitHub Actions, Azure DevOps, Gitea Actions, Bitbucket, GitLab CI ou Jenkins). Não dispara pipeline, não cria secrets e não tem shell.",
+  "description": "Especialista: gera o pipeline de CI/CD com a skill gerar-pipeline na plataforma do contexto de entrega (GitHub Actions, Azure DevOps, Gitea Actions, Bitbucket, GitLab CI ou Jenkins). Sem shell; não dispara pipeline nem cria secrets.",
   "prompt": "file://./instrucoes/pipeliner.md",
   "tools": [
     "glob",
@@ -9,86 +9,17 @@
     "write",
     "@mcp"
   ],
-  "allowedTools": [
-    "read",
-    "glob",
-    "grep"
-  ],
-  "toolsSettings": {
-    "write": {
-      "allowedPaths": [
-        ".github/workflows/**",
-        ".gitea/workflows/**",
-        "azure-pipelines*.yml",
-        ".azuredevops/**",
-        "bitbucket-pipelines.yml",
-        ".gitlab-ci.yml",
-        "Jenkinsfile",
-        "docs/deploy/**"
-      ]
-    }
-  },
   "resources": [
     "file://~/.kiro/steering/**/*.md",
-    "skill://~/.kiro/skills/gerar-pipeline/SKILL.md",
-    "file://~/.kiro/references/nomenclatura.md",
+    "file://~/.kiro/references/README.md",
+    "file://~/.kiro/references/padroes-do-time.md",
     "file://~/.kiro/references/checklist-producao.md",
-    "file://~/.kiro/references/padroes-do-time.md"
+    "file://~/.kiro/references/nomenclatura.md",
+    "skill://~/.kiro/skills/gerar-pipeline/SKILL.md"
   ],
   "includeMcpJson": true,
-  "hooks": [
-    {
-      "name": "guardrail-segredos",
-      "trigger": "PreToolUse",
-      "action": {
-        "type": "command",
-        "command": "bash ~/.kiro/hooks/bloquear-segredos.sh"
-      }
-    }
-  ],
   "permissions": {
     "rules": [
-      {
-        "capability": "fs_read",
-        "match": [
-          "**/.env",
-          "**/.env.*",
-          "**/*.pem",
-          "**/*.key",
-          "**/*.pfx",
-          "**/*.p12",
-          "**/*.jks",
-          "**/*.keystore",
-          "**/id_rsa*",
-          "**/id_ed25519*",
-          "**/id_ecdsa*",
-          "**/*.tfstate",
-          "**/*.tfstate.*",
-          "**/*.tfvars",
-          "**/.npmrc",
-          "**/.pypirc",
-          "**/.netrc",
-          "**/.git-credentials",
-          "**/.git/config",
-          "**/credentials",
-          "**/credentials*.json",
-          "**/secret.*",
-          "**/secrets.*",
-          "**/.aws/**",
-          "**/.azure/**",
-          "**/.kube/**",
-          "**/.ssh/**",
-          "**/.gnupg/**",
-          "**/.docker/config.json"
-        ],
-        "exclude": [
-          "**/.env.example",
-          "**/.env.sample",
-          "**/.env.template",
-          "**/*.tfvars.example"
-        ],
-        "effect": "deny"
-      },
       {
         "capability": "fs_write",
         "match": [
