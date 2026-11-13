@@ -29,7 +29,7 @@ references do time valem para esta aplicação **antes** de gerar qualquer
 coisa, perguntando uma vez só.
 
 1. Se `docs/deploy/contexto.md` existir, leia-o.
-2. Leia o índice `~/.kiro/references/README.md` e selecione as references
+2. Leia o índice `<kiro>/references/README.md` e selecione as references
    que se aplicam (exemplo: template de pipeline da plataforma, módulo de
    IaC da cloud, padrão de nomes). Leia só as selecionadas.
 3. Levante o que der sem perguntar: o que o usuário já escreveu, evidências

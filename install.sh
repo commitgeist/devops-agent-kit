@@ -1,6 +1,9 @@
 #!/usr/bin/env bash
 # Instala o devops-agent-kit em ~/.kiro/ por meio de links simbólicos.
 #
+#   ./install.sh                    # global: ~/.kiro/ (todos os repositórios)
+#   ./install.sh --projeto <repo>   # só no repositório: <repo>/.kiro/, fora do git
+#
 # Pastas linkadas inteiras: steering, agents, skills, references, templates, hooks.
 # Prompts: o Kiro CLI só descobre ~/.kiro/prompts/*.md (sem subpastas), então
 # cada arquivo de prompts/reais/ é linkado individualmente
@@ -17,6 +20,12 @@ set -euo pipefail
 
 KIT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 KIRO_DIR="${HOME}/.kiro"
+
+# Modo projeto: instala em <repo>/.kiro/ (fora do git), em vez de ~/.kiro/.
+if [[ "${1:-}" == "--projeto" ]]; then
+  command -v python3 >/dev/null || { echo "ERRO: o modo --projeto precisa de python3."; exit 1; }
+  exec python3 "${KIT_DIR}/lib/projeto.py" instalar "${2:-.}"
+fi
 PASTAS=(steering agents skills references templates hooks)
 
 erros=0
@@ -121,6 +130,12 @@ if (( erros > 0 )); then
 fi
 
 echo "Instalação concluída."
+engine="$(kiro-cli settings chat.agentEngine 2>/dev/null | tr -d '"' || true)"
+if [[ "$engine" != "v3" ]]; then
+  echo
+  echo "ATENÇÃO: os agentes do kit exigem a engine v3 do Kiro (atual: ${engine:-não definida}). Rode:"
+  echo "  kiro-cli settings chat.agentEngine v3"
+fi
 echo
 echo "Recomendado: para que cada agente carregue apenas as skills declaradas no"
 echo "próprio JSON, desligue a herança de recursos padrão no Kiro CLI:"

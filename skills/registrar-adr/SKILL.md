@@ -14,7 +14,7 @@ $ARGUMENTS
    Se já houver ADR sobre o mesmo assunto, pergunte se a nova **substitui**
    a anterior; se sim, atualize o status da antiga para
    "Substituída por ADR-NNNN".
-2. Use o template `~/.kiro/templates/adr/adr-template.md`.
+2. Use o template `<kiro>/templates/adr/adr-template.md`.
 3. Preencha só com o que foi decidido na conversa ou está nos documentos
    (`docs/deploy/analise.md`, `docs/deploy/contexto.md`, relatórios de
    `docs/review/`). Contexto, alternativas e consequências sem base viram

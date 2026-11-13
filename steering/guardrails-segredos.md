@@ -6,7 +6,8 @@ inclusion: always
 
 Estas regras valem para qualquer agente, skill ou conversa. Elas são
 reforçadas por camadas técnicas globais: regras `deny` em
-`~/.kiro/settings/permissions.yaml` e o hook `~/.kiro/hooks/` (PreToolUse).
+`permissions` (global em `~/.kiro/settings/permissions.yaml` ou nos
+agentes do projeto) e o hook de segredos em `<kiro>/hooks/` (PreToolUse).
 Se uma camada falhar, as outras continuam valendo: **nunca tente contornar
 um bloqueio**.
 

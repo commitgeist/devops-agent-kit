@@ -21,11 +21,36 @@ segredo.
 
 ```bash
 git clone <repo-url> <caminho-local>
-cd <caminho-local>
-./install.sh
+kiro-cli settings chat.agentEngine v3                           # obrigatório: agentes no formato v3
 kiro-cli settings chat.disableInheritingDefaultResources true   # cada agente carrega só o que declara
-kiro-cli agent set-default devops                               # opcional: sem precisar de --agent
 ```
+
+Escolha o escopo:
+
+| Modo | Comando | Onde fica | Quando usar |
+|------|---------|-----------|-------------|
+| **Projeto** | `<caminho-local>/install.sh --projeto <repo>` | `<repo>/.kiro/`, fora do git | O kit só naquele repositório |
+| **Global** | `<caminho-local>/install.sh` | `~/.kiro/` | O kit em qualquer repositório que você abrir |
+
+### Modo projeto
+
+- **Cópia, não link:** o kit é copiado para `<repo>/.kiro/`. Os agentes são
+  gerados com caminhos relativos e com as regras de segredo embutidas
+  (o `permissions.yaml` de workspace não fica no repositório), e o hook vai
+  para `.kiro/hooks/`.
+- **Fora do git sem mexer no `.gitignore` do time:** `.kiro/` entra em
+  `.git/info/exclude`, que é um ignore local. Se preferir, coloque `.kiro/`
+  no `.gitignore`.
+- **Atualizar:** `git pull` no kit e rode o `--projeto` de novo. Os
+  arquivos do kit são atualizados e os que saíram do kit são removidos.
+  Arquivos seus em `.kiro/` não são tocados (o que o kit escreveu fica
+  listado em `.kiro/.devops-agent-kit`).
+- **Não edite as cópias:** elas são sobrescritas na próxima atualização.
+  Personalize em `references/` no kit.
+- **Remover:** `<caminho-local>/uninstall.sh --projeto <repo>`.
+- Os agentes do projeto têm precedência sobre os globais de mesmo nome.
+
+### Modo global
 
 O `install.sh` cria links em `~/.kiro/` para `steering`, `agents`, `skills`,
 `references`, `templates`, `hooks`, para cada prompt e para
@@ -46,6 +71,9 @@ o `.env`: a leitura tem que ser bloqueada.
 
 **Atualizar:** `git pull` e `./install.sh` (o script reaponta links e remove
 prompts que saíram do kit). **Remover:** `./uninstall.sh`.
+
+Se um agente responder `Mode '<agente>' not found`, a engine v3 não está
+ativa: `kiro-cli settings chat.agentEngine v3`. Os dois instaladores avisam.
 
 ## Configuração do time (uma vez)
 
@@ -150,6 +178,7 @@ listagem de nomes, que é liberada.
 | `steering/` regras sempre ativas | `Dockerfile`, `deploy/` (IaC, manifests), pipeline |
 | `references/` padrões do time (índice em `README.md`) | `docs/adr/` decisões |
 | `hooks/`, `settings/` guardrails globais | `docs/review/`, `docs/security/` relatórios |
+| `lib/projeto.py` instalação no modo projeto | `.kiro/` (modo projeto, fora do git) |
 | `mcp/` catálogo e script de MCP | |
 | `prompts/reais/` prompts `@real-*` | |
 | `templates/` ADR e contexto de entrega | |
