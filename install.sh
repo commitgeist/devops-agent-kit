@@ -30,6 +30,28 @@ PASTAS=(steering agents skills references templates hooks)
 
 erros=0
 
+# Pasta que o próprio Kiro cria vazia (ou só com o exemplo dele) numa
+# instalação nova ou após um reset do ~/.kiro. Pode ser substituída pelo
+# link do kit sem perder nada.
+so_padrao_do_kiro() {
+  local dir="$1" item
+  [[ -d "$dir" && ! -L "$dir" ]] || return 1
+  for item in "$dir"/* "$dir"/.[!.]*; do
+    [[ -e "$item" ]] || continue
+    [[ "$(basename "$item")" == "agent_config.json.example" ]] || return 1
+  done
+  return 0
+}
+
+liberar_padrao_do_kiro() {
+  local dir="$1"
+  if [[ -e "$dir/agent_config.json.example" ]]; then
+    mv "$dir/agent_config.json.example" "${dir}.agent_config.json.example.bak"
+  fi
+  rmdir "$dir"
+  echo "liberado  $dir (só tinha o conteúdo padrão do Kiro)"
+}
+
 link_item() {
   local origem="$1" destino="$2"
 
@@ -61,6 +83,9 @@ link_item() {
 conflitos=0
 for pasta in "${PASTAS[@]}"; do
   destino="${KIRO_DIR}/${pasta}"
+  if so_padrao_do_kiro "$destino"; then
+    continue
+  fi
   if [[ -e "$destino" && ! -L "$destino" ]]; then
     echo "ERRO: ${destino} já existe e não é link simbólico."
     conflitos=$((conflitos + 1))
@@ -94,6 +119,9 @@ mkdir -p "$KIRO_DIR"
 
 echo "Pastas:"
 for pasta in "${PASTAS[@]}"; do
+  if so_padrao_do_kiro "${KIRO_DIR}/${pasta}"; then
+    liberar_padrao_do_kiro "${KIRO_DIR}/${pasta}"
+  fi
   link_item "${KIT_DIR}/${pasta}" "${KIRO_DIR}/${pasta}"
 done
 
