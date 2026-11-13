@@ -89,7 +89,7 @@ def checar_engine():
     try:
         r = subprocess.run(["kiro-cli", "settings", "chat.agentEngine"],
                            capture_output=True, text=True, timeout=20)
-        valor = r.stdout.strip().strip('"')
+        valor = (r.stdout.split() or [""])[0].strip('"')  # ex.: "v3 (global)"
     except Exception:
         return
     if valor != "v3":

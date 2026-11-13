@@ -130,7 +130,7 @@ if (( erros > 0 )); then
 fi
 
 echo "Instalação concluída."
-engine="$(kiro-cli settings chat.agentEngine 2>/dev/null | tr -d '"' || true)"
+engine="$(kiro-cli settings chat.agentEngine 2>/dev/null | awk '{print $1}' | tr -d '"' || true)"
 if [[ "$engine" != "v3" ]]; then
   echo
   echo "ATENÇÃO: os agentes do kit exigem a engine v3 do Kiro (atual: ${engine:-não definida}). Rode:"
