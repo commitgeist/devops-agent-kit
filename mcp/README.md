@@ -8,8 +8,8 @@ Assim cada pessoa liga só o que usa, e nenhum token fica no repositório.
 
 | Tipo | Exemplos | Quem usa | Para quê |
 |------|----------|----------|----------|
-| Documentação | `aws-docs`, `microsoft-learn`, `terraform` | `analyzer`, `deployer`, `pipeliner` | Conferir a boa prática atual antes de recomendar destino ou gerar IaC; versões de provider e módulos |
-| Plataforma | `github`, `azure-devops`, `gitea` | `pipeliner` | Consultar templates de pipeline, environments, runners e convenções já existentes |
+| Documentação | `aws-docs`, `microsoft-learn`, `terraform` | todos os agentes, exceto `containerizer` | Conferir a boa prática atual antes de recomendar destino ou gerar IaC; versões de provider e módulos |
+| Plataforma | `github`, `azure-devops`, `gitea` | `pipeliner`, `reviewer`, `secops` | Consultar templates de pipeline, environments, runners e convenções já existentes |
 
 Permissões nos agentes:
 
@@ -51,6 +51,9 @@ servidores só para um repositório, use `--scope workspace`.
 - Versão fixa para servidores empacotados (imagem ou pacote npm).
 - Antes de aplicar, confira o README oficial de cada servidor. Nomes de
   imagem, flags e variáveis mudam entre versões.
+- As permissões dos agentes usam os **nomes** do catálogo (`aws-docs`,
+  `github` etc.). Servidor adicionado com outro nome fica sem regra e o
+  Kiro pede confirmação a cada uso.
 - Servidor novo no catálogo: abra PR no kit adicionando o caso em
   `configurar-mcp.sh`, esta tabela e a regra de permissão (`allow` ou
   `ask`) nos JSONs dos agentes.

@@ -22,6 +22,9 @@ $ARGUMENTS
    própria.
 4. Siga `checklist-producao.md`, `nomenclatura.md` e
    `guardrails-segredos.md`.
+5. Use as references confirmadas (lista recebida ou registrada em
+   `docs/deploy/contexto.md`), em especial `pipeline/<plataforma>/`: parta
+   dos templates do time em vez de escrever do zero.
 
 ## Onde gerar
 
@@ -46,8 +49,11 @@ Gere só o que se aplica ao destino da análise:
    versão da análise, cache de dependências, instalação travada pelo lock
    (`npm ci`, `pip install -r` com hashes, `mvn -B` etc.), lint e testes
    quando existirem, build.
-2. **Segurança:** scan de dependências e de IaC com o scanner do contexto
-   (ou `<ferramenta-de-scan>`); scan da imagem quando houver container.
+2. **Segurança:** se existir relatório do `secops` em `docs/security/`,
+   implemente os controles propostos nele. Senão, aplique o "mínimo
+   recomendado" de `seguranca/ferramentas.md` com as ferramentas do
+   contexto (ou as nativas da plataforma): segredos, SCA, IaC, imagem e
+   SAST, com saída SARIF quando a plataforma suportar.
 3. **Artefato:**
    - Com container: build da imagem e push para o registry do contexto
      com **tag imutável** (SHA do commit ou versão semântica), nunca

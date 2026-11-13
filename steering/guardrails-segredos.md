@@ -5,17 +5,17 @@ inclusion: always
 # Guardrails de segredos e credenciais
 
 Estas regras valem para qualquer agente, skill ou conversa. Elas são
-reforçadas por três camadas técnicas: regras `deny` em `permissions` de cada
-agente, o hook `hooks/bloquear-segredos.sh` (PreToolUse) e esta steering.
+reforçadas por camadas técnicas globais: regras `deny` em
+`~/.kiro/settings/permissions.yaml` e o hook `~/.kiro/hooks/` (PreToolUse).
 Se uma camada falhar, as outras continuam valendo: **nunca tente contornar
 um bloqueio**.
 
 ## Nunca ler
 
 - Arquivos de ambiente: `.env`, `.env.*` (exceto `.env.example`,
-  `.env.sample` e `.env.template`).
+  `.env.sample`, `.env.template` e `.env.dist`).
 - Chaves e certificados: `*.pem`, `*.key`, `*.pfx`, `*.p12`, `*.jks`,
-  `*.keystore`, `id_rsa*`, `id_ed25519*`, `id_ecdsa*`.
+  `*.keystore`, `*.kdbx`, `id_rsa*`, `id_dsa*`, `id_ed25519*`, `id_ecdsa*`.
 - Credenciais de ferramentas: `~/.aws/`, `~/.azure/`, `~/.kube/`, `~/.ssh/`,
   `~/.gnupg/`, `~/.docker/config.json`, `.npmrc`, `.pypirc`, `.netrc`,
   `.git-credentials`, `.git/config` (a URL do remote pode ter token),
@@ -34,7 +34,7 @@ listagem de nomes (`glob`), nunca o conteúdo.
   `set`, `export -p`, `aws configure get`, `aws configure
   export-credentials`, `az account get-access-token`, `gh auth token`,
   `kubectl get secret`, `terraform output` de valores sensíveis,
-  `docker login`.
+  `docker login`, `gitleaks` sem `--redact`.
 - `cat`, `head`, `tail`, `less`, `grep`, `source` ou equivalentes sobre os
   arquivos da lista acima.
 

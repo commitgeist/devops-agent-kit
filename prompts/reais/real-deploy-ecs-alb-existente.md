@@ -1,5 +1,6 @@
-Use o deployer para gerar o deploy desta aplicação para ECS Fargate com
-Terraform, com base em docs/deploy/analise.md.
+Use o deployer para gerar o deploy desta aplicação para ECS Fargate, na
+ferramenta de IaC definida em docs/deploy/contexto.md, com base em
+docs/deploy/analise.md.
 
 Dados do ambiente:
 $ARGUMENTS
@@ -15,4 +16,5 @@ Restrições:
 - Log group com retenção de <dias-de-retencao> dias.
 - Circuit breaker com rollback habilitado no service.
 - Imagem com tag imutável, nunca latest.
-- Pode rodar terraform fmt e terraform validate. Não rode plan nem apply.
+- Rode só a validação permitida para a ferramenta. Nada de plan, preview,
+  what-if, deploy ou apply.

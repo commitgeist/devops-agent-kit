@@ -1,0 +1,96 @@
+{
+  "name": "reviewer",
+  "description": "Revisa ADR contra implementação, análise contra código, Dockerfile, IaC, manifests, pipeline ou o diff de uma branch, contra steering, references e checklist. Só lê; grava relatório em docs/review/ e nunca corrige.",
+  "prompt": "file://./instrucoes/reviewer.md",
+  "tools": [
+    "glob",
+    "grep",
+    "read",
+    "code",
+    "write",
+    "shell",
+    "@mcp"
+  ],
+  "resources": [
+    "file://~/.kiro/steering/**/*.md",
+    "file://~/.kiro/references/README.md",
+    "file://~/.kiro/references/padroes-do-time.md",
+    "file://~/.kiro/references/checklist-producao.md",
+    "file://~/.kiro/references/nomenclatura.md",
+    "skill://~/.kiro/skills/revisar/SKILL.md"
+  ],
+  "includeMcpJson": true,
+  "welcomeMessage": "reviewer pronto. Diga o escopo: adr, analise, container, iac, pipeline, branch <base> ou completo.",
+  "permissions": {
+    "rules": [
+      {
+        "capability": "fs_write",
+        "match": [
+          "docs/review/**"
+        ],
+        "effect": "allow"
+      },
+      {
+        "capability": "fs_read",
+        "effect": "allow"
+      },
+      {
+        "capability": "skill",
+        "effect": "allow"
+      },
+      {
+        "capability": "shell",
+        "match": [
+          "git diff*",
+          "git log*",
+          "git show*",
+          "git status*",
+          "git rev-parse*",
+          "git merge-base*",
+          "git branch --list*",
+          "git branch -a*",
+          "git branch -r*",
+          "git branch --show-current*"
+        ],
+        "effect": "allow"
+      },
+      {
+        "capability": "shell",
+        "match": [
+          "*"
+        ],
+        "exclude": [
+          "git diff*",
+          "git log*",
+          "git show*",
+          "git status*",
+          "git rev-parse*",
+          "git merge-base*",
+          "git branch --list*",
+          "git branch -a*",
+          "git branch -r*",
+          "git branch --show-current*"
+        ],
+        "effect": "deny"
+      },
+      {
+        "capability": "mcp",
+        "match": [
+          "aws-docs/*",
+          "microsoft-learn/*",
+          "terraform/*"
+        ],
+        "effect": "allow"
+      },
+      {
+        "capability": "mcp",
+        "match": [
+          "github/*",
+          "azure-devops/*",
+          "gitea/*"
+        ],
+        "effect": "ask"
+      }
+    ]
+  }
+}

@@ -1,6 +1,6 @@
 {
   "name": "deployer",
-  "description": "Gera artefatos de deploy com a skill gerar-deploy na ferramenta de IaC do contexto de entrega (Terraform, OpenTofu, Bicep, Pulumi, CDK ou CloudFormation): AKS (manifests YAML via GitOps), ECS ou hospedagem estática. Nunca aplica nada e nunca usa latest.",
+  "description": "Especialista: gera IaC e manifests com a skill gerar-deploy na ferramenta do contexto de entrega (Terraform, OpenTofu, Bicep, Pulumi, CDK ou CloudFormation) para AKS, ECS ou hospedagem estática. Nunca aplica nada.",
   "prompt": "file://./instrucoes/deployer.md",
   "tools": [
     "glob",
@@ -10,91 +10,33 @@
     "write",
     "@mcp"
   ],
-  "allowedTools": [
-    "read",
-    "glob",
-    "grep"
-  ],
-  "toolsSettings": {
-    "write": {
-      "allowedPaths": [
-        "deploy/**",
-        "docs/deploy/**"
-      ]
-    },
-    "shell": {
-      "allowedCommands": [
-        "terraform fmt.*",
-        "terraform validate.*",
-        "terraform init -backend=false.*",
-        "tofu fmt.*",
-        "tofu validate.*",
-        "tofu init -backend=false.*",
-        "bicep build.*",
-        "bicep lint.*"
-      ],
-      "deniedCommands": [
-        ".*terraform (apply|destroy|import|state).*",
-        ".*\\bkubectl\\b.*",
-        ".*\\bhelm\\b.*",
-        ".*aws ecs .*",
-        ".*\\baws s3\\b.*",
-        ".*\\baws cloudfront\\b.*",
-        ".*\\baz\\b.*"
-      ],
-      "denyByDefault": true
-    }
-  },
   "resources": [
     "file://~/.kiro/steering/**/*.md",
-    "skill://~/.kiro/skills/gerar-deploy/SKILL.md",
-    "file://~/.kiro/references/gitops.md",
-    "file://~/.kiro/references/nomenclatura.md",
+    "file://~/.kiro/references/README.md",
+    "file://~/.kiro/references/padroes-do-time.md",
     "file://~/.kiro/references/checklist-producao.md",
-    "file://~/.kiro/references/padroes-do-time.md"
+    "file://~/.kiro/references/nomenclatura.md",
+    "file://~/.kiro/references/gitops.md",
+    "skill://~/.kiro/skills/gerar-deploy/SKILL.md"
   ],
+  "includeMcpJson": true,
   "permissions": {
     "rules": [
       {
-        "capability": "fs_read",
+        "capability": "fs_write",
         "match": [
-          "**/.env",
-          "**/.env.*",
-          "**/*.pem",
-          "**/*.key",
-          "**/*.pfx",
-          "**/*.p12",
-          "**/*.jks",
-          "**/*.keystore",
-          "**/id_rsa*",
-          "**/id_ed25519*",
-          "**/id_ecdsa*",
-          "**/*.tfstate",
-          "**/*.tfstate.*",
-          "**/*.tfvars",
-          "**/.npmrc",
-          "**/.pypirc",
-          "**/.netrc",
-          "**/.git-credentials",
-          "**/.git/config",
-          "**/credentials",
-          "**/credentials*.json",
-          "**/secret.*",
-          "**/secrets.*",
-          "**/.aws/**",
-          "**/.azure/**",
-          "**/.kube/**",
-          "**/.ssh/**",
-          "**/.gnupg/**",
-          "**/.docker/config.json"
+          "deploy/**",
+          "docs/deploy/**"
         ],
-        "exclude": [
-          "**/.env.example",
-          "**/.env.sample",
-          "**/.env.template",
-          "**/*.tfvars.example"
-        ],
-        "effect": "deny"
+        "effect": "allow"
+      },
+      {
+        "capability": "fs_read",
+        "effect": "allow"
+      },
+      {
+        "capability": "skill",
+        "effect": "allow"
       },
       {
         "capability": "shell",
@@ -153,22 +95,6 @@
         "effect": "deny"
       },
       {
-        "capability": "fs_write",
-        "match": [
-          "deploy/**",
-          "docs/deploy/**"
-        ],
-        "effect": "allow"
-      },
-      {
-        "capability": "fs_read",
-        "effect": "allow"
-      },
-      {
-        "capability": "skill",
-        "effect": "allow"
-      },
-      {
         "capability": "mcp",
         "match": [
           "aws-docs/*",
@@ -178,21 +104,5 @@
         "effect": "allow"
       }
     ]
-  },
-  "kiroUpgrade": {
-    "revision": 3,
-    "fingerprint": "sha256:d47bf10b88677a9a845f3f2af7225fc6835a030c01708d58cb184bae1e91d26e",
-    "source": "sha256:2159d9c24e94b09f7b06d6e8148d17881ee1f8e8f8aa51aebca9d2b2f1213284"
-  },
-  "hooks": [
-    {
-      "name": "guardrail-segredos",
-      "trigger": "PreToolUse",
-      "action": {
-        "type": "command",
-        "command": "bash ~/.kiro/hooks/bloquear-segredos.sh"
-      }
-    }
-  ],
-  "includeMcpJson": true
+  }
 }

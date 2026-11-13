@@ -1,0 +1,92 @@
+{
+  "name": "secops",
+  "description": "Avalia a postura de segurança da aplicação e da esteira (segredos, dependências, código, IaC, container, CI/CD) com a skill avaliar-seguranca e propõe os controles de segurança do pipeline. Só lê; roda scanners locais com saída mascarada; grava relatório em docs/security/.",
+  "prompt": "file://./instrucoes/secops.md",
+  "tools": [
+    "glob",
+    "grep",
+    "read",
+    "code",
+    "write",
+    "shell",
+    "@mcp"
+  ],
+  "resources": [
+    "file://~/.kiro/steering/**/*.md",
+    "file://~/.kiro/references/README.md",
+    "file://~/.kiro/references/padroes-do-time.md",
+    "file://~/.kiro/references/checklist-producao.md",
+    "file://~/.kiro/references/seguranca/ferramentas.md",
+    "skill://~/.kiro/skills/avaliar-seguranca/SKILL.md"
+  ],
+  "includeMcpJson": true,
+  "welcomeMessage": "secops pronto. Peça uma avaliação completa ou de uma camada: segredos, dependencias, codigo, iac, container ou esteira.",
+  "permissions": {
+    "rules": [
+      {
+        "capability": "fs_write",
+        "match": [
+          "docs/security/**"
+        ],
+        "effect": "allow"
+      },
+      {
+        "capability": "fs_read",
+        "effect": "allow"
+      },
+      {
+        "capability": "skill",
+        "effect": "allow"
+      },
+      {
+        "capability": "shell",
+        "match": [
+          "gitleaks dir*",
+          "gitleaks git*",
+          "trivy fs*",
+          "trivy config*",
+          "semgrep scan*",
+          "checkov -d*",
+          "checkov --directory*",
+          "hadolint*"
+        ],
+        "effect": "allow"
+      },
+      {
+        "capability": "shell",
+        "match": [
+          "*"
+        ],
+        "exclude": [
+          "gitleaks dir*",
+          "gitleaks git*",
+          "trivy fs*",
+          "trivy config*",
+          "semgrep scan*",
+          "checkov -d*",
+          "checkov --directory*",
+          "hadolint*"
+        ],
+        "effect": "deny"
+      },
+      {
+        "capability": "mcp",
+        "match": [
+          "aws-docs/*",
+          "microsoft-learn/*",
+          "terraform/*"
+        ],
+        "effect": "allow"
+      },
+      {
+        "capability": "mcp",
+        "match": [
+          "github/*",
+          "azure-devops/*",
+          "gitea/*"
+        ],
+        "effect": "ask"
+      }
+    ]
+  }
+}

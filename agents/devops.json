@@ -1,0 +1,74 @@
+{
+  "name": "devops",
+  "description": "Ponto de entrada de DevOps: conduz o fluxo subir-app, registra ADRs e delega aos especialistas (analyzer, containerizer, deployer, pipeliner, reviewer, secops). Não gera artefatos nem aplica nada; só escreve ADRs em docs/adr/.",
+  "prompt": "file://./instrucoes/devops.md",
+  "tools": [
+    "glob",
+    "grep",
+    "read",
+    "write",
+    "@mcp",
+    "subagent/analyzer",
+    "subagent/containerizer",
+    "subagent/deployer",
+    "subagent/pipeliner",
+    "subagent/reviewer",
+    "subagent/secops"
+  ],
+  "resources": [
+    "file://~/.kiro/steering/**/*.md",
+    "file://~/.kiro/references/README.md",
+    "file://~/.kiro/references/padroes-do-time.md",
+    "file://~/.kiro/references/checklist-producao.md",
+    "skill://~/.kiro/skills/subir-app/SKILL.md",
+    "skill://~/.kiro/skills/registrar-adr/SKILL.md"
+  ],
+  "includeMcpJson": true,
+  "welcomeMessage": "devops pronto. Peça para subir/preparar o deploy de uma aplicação, registrar uma decisão (ADR) ou revisar algo. Se já souber, informe cloud, IaC, CI/CD e destino, ou use @real-contexto-entrega.",
+  "permissions": {
+    "rules": [
+      {
+        "capability": "fs_write",
+        "match": [
+          "docs/adr/**"
+        ],
+        "effect": "allow"
+      },
+      {
+        "capability": "fs_read",
+        "effect": "allow"
+      },
+      {
+        "capability": "skill",
+        "effect": "allow"
+      },
+      {
+        "capability": "subagent",
+        "match": [
+          "analyzer",
+          "reviewer",
+          "secops"
+        ],
+        "effect": "allow"
+      },
+      {
+        "capability": "subagent",
+        "match": [
+          "containerizer",
+          "deployer",
+          "pipeliner"
+        ],
+        "effect": "ask"
+      },
+      {
+        "capability": "mcp",
+        "match": [
+          "aws-docs/*",
+          "microsoft-learn/*",
+          "terraform/*"
+        ],
+        "effect": "allow"
+      }
+    ]
+  }
+}
