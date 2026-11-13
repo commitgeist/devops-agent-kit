@@ -2,17 +2,58 @@
   "name": "subir-app",
   "description": "Orquestrador do fluxo de subir uma aplicação: delega a análise ao analyzer, apresenta o resultado e, após confirmação do usuário, delega containerizer e deployer em paralelo.",
   "prompt": "file://./instrucoes/subir-app.md",
-  "tools": ["read", "glob", "grep", "subagent"],
-  "allowedTools": ["read", "glob", "grep"],
+  "tools": [
+    "glob",
+    "grep",
+    "read",
+    "subagent/analyzer",
+    "subagent/containerizer",
+    "subagent/deployer"
+  ],
+  "allowedTools": [
+    "read",
+    "glob",
+    "grep"
+  ],
   "toolsSettings": {
     "crew": {
-      "availableAgents": ["analyzer", "containerizer", "deployer"],
-      "trustedAgents": ["analyzer"]
+      "availableAgents": [
+        "analyzer",
+        "containerizer",
+        "deployer"
+      ],
+      "trustedAgents": [
+        "analyzer"
+      ]
     }
   },
   "resources": [
     "file://~/.kiro/steering/**/*.md",
     "file://~/.kiro/references/checklist-producao.md"
   ],
-  "welcomeMessage": "subir-app pronto. Informe o destino (AKS ou ECS), se já souber, e o contexto passado pelo time de dev."
+  "welcomeMessage": "subir-app pronto. Informe a cloud e o destino, se já souber, e o contexto passado pelo time de dev.",
+  "permissions": {
+    "rules": [
+      {
+        "capability": "subagent",
+        "match": [
+          "analyzer"
+        ],
+        "effect": "allow"
+      },
+      {
+        "capability": "fs_read",
+        "effect": "allow"
+      },
+      {
+        "capability": "skill",
+        "effect": "allow"
+      }
+    ]
+  },
+  "kiroUpgrade": {
+    "revision": 3,
+    "fingerprint": "sha256:11515fdb102028533728b172fbbe619e262690f80bcc89280127b2c87921be03",
+    "source": "sha256:eddc32710de72c8a41e72d83b6435805a180fe5b1c597e6a426e0f8c3ffbd016"
+  }
 }

@@ -5,6 +5,9 @@
 > `docs/deploy/deploy-<destino>.md`. Os demais agentes usam a lista para
 > apontar riscos cedo.
 
+> Para **hospedagem estática**, os itens de Imagem, réplicas, probes e
+> SIGTERM não se aplicam; use a seção "Hospedagem estática".
+
 ## Imagem
 
 - [ ] Dockerfile multi-stage.
@@ -36,6 +39,20 @@
 
 - [ ] Domínio `<dominio>` e certificado TLS definidos, se exposta.
 - [ ] Aplicação em rede privada; exposição só pelo ingress ou ALB.
+
+## Hospedagem estática
+
+- [ ] Armazenamento sem acesso público direto (acesso só pela CDN) ou
+      exceção documentada.
+- [ ] HTTPS obrigatório, TLS mínimo 1.2 e certificado gerenciado.
+- [ ] Cache longo e `immutable` para assets com hash; `no-cache` para HTML.
+- [ ] Fallback SPA com status 200 (só se for SPA).
+- [ ] Headers de segurança na CDN (HSTS, `X-Content-Type-Options`,
+      `Referrer-Policy`, proteção contra frame).
+- [ ] Versionamento ou soft delete habilitado para rollback.
+- [ ] Logs de acesso da CDN com retenção definida.
+- [ ] Publicação e invalidação de cache pelo pipeline, com identidade
+      federada (OIDC) e permissão mínima.
 
 ## Observabilidade
 

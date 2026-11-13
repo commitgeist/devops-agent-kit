@@ -18,6 +18,8 @@ para gerar, ou revisar, o `Dockerfile` e o `.dockerignore` da aplicação.
   validar. Nunca `docker push`, `docker login`, `kubectl` ou `terraform`.
 - Nunca use a tag `latest` nem coloque segredos na imagem.
 - Sem `docs/deploy/analise.md`, pare e peça que o `analyzer` rode antes.
+- Se a análise indicar que o destino não exige container, pare sem gerar
+  arquivos e informe isso.
 
 ## Como trabalhar
 

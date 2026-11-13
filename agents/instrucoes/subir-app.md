@@ -11,7 +11,7 @@ Os agentes disponíveis para delegação são `analyzer`, `containerizer` e
 
 ### Etapa 1: análise
 
-1. Reúna o que o usuário informou: destino (AKS ou ECS), contexto do time
+1. Reúna o que o usuário informou: destino e cloud (se houver), contexto do time
    de dev, restrições. Não pergunte nada antes de delegar, a menos que o
    usuário não tenha aberto o repositório da aplicação como workspace.
 2. Delegue **apenas** ao `analyzer`, em um único estágio, repassando todo o
@@ -36,6 +36,9 @@ Os agentes disponíveis para delegação são `analyzer`, `containerizer` e
 2. Mostre ao usuário um resumo com: stack e runtime, porta, healthcheck,
    lista de configs e de segredos, dependências externas, riscos, destino
    recomendado e **todas** as perguntas abertas.
+   Destaque o tipo de carga, o destino recomendado, as alternativas
+   descartadas e se o destino exige container. Se o destino informado pelo
+   usuário divergir da recomendação, mostre a divergência com clareza.
 3. Pergunte explicitamente se pode seguir, se o destino está correto e se
    há respostas para as perguntas abertas.
 4. **Pare e espere a resposta do usuário.** Não delegue mais nada nesta
@@ -43,11 +46,20 @@ Os agentes disponíveis para delegação são `analyzer`, `containerizer` e
 5. Se o usuário corrigir algo relevante (destino, dependência, variável),
    delegue de novo ao `analyzer` para atualizar a análise antes de seguir.
 
-### Etapa 3: container e deploy em paralelo
+### Etapa 3: container e deploy
 
-Com a confirmação, delegue `containerizer` e `deployer` na **mesma**
-chamada, sem `depends_on`, para que rodem em paralelo. Repasse o destino
-confirmado e as respostas do usuário. Exemplo:
+Decida o que delegar com base no destino confirmado e na seção 9 da análise:
+
+- **Exige container e há gerador no kit:** delegue `containerizer` e
+  `deployer` na **mesma** chamada, sem `depends_on`, para que rodem em
+  paralelo (exemplo abaixo).
+- **Não exige container:** não delegue o `containerizer`. Delegue o
+  `deployer` só se houver gerador no kit para esse destino.
+- **Destino sem gerador no kit:** não force um destino suportado. Informe que o kit
+  ainda não gera artefatos para esse destino, entregue a recomendação da
+  análise como próximo passo humano e sugira registrar a decisão em ADR.
+
+Repasse o destino confirmado e as respostas do usuário. Exemplo:
 
 ```json
 {
@@ -61,7 +73,7 @@ confirmado e as respostas do usuário. Exemplo:
     {
       "name": "deploy",
       "role": "deployer",
-      "prompt_template": "Use a skill gerar-deploy. Destino confirmado: <AKS ou ECS>. Respostas do usuário: <respostas>. Tarefa geral: {task}"
+      "prompt_template": "Use a skill gerar-deploy. Destino confirmado: <destino>. Respostas do usuário: <respostas>. Tarefa geral: {task}"
     }
   ]
 }
@@ -76,8 +88,9 @@ Apresente ao usuário:
 3. Placeholders pendentes.
 4. Itens pendentes do checklist de produção.
 5. Perguntas que continuam abertas para o time de dev.
-6. Próximo passo humano (PR no `<manifests-repo>` para AKS, ou `plan` e
-   `apply` pelo pipeline para ECS).
+6. Próximo passo humano (PR no `<manifests-repo>` para AKS; `plan` e
+   `apply` pelo pipeline para ECS e hospedagem estática, mais a publicação
+   do conteúdo e a invalidação de cache pelo pipeline no caso estático).
 
 ## Proibido
 
@@ -86,3 +99,5 @@ Apresente ao usuário:
   `docs/deploy/analise.md`.
 - Fazer commit, push, `kubectl apply`, `terraform apply` ou qualquer deploy.
 - Inventar respostas para as perguntas abertas.
+- Encaixar a aplicação em AKS, ECS ou estático só porque são os geradores
+  disponíveis, quando a análise recomenda outro destino.

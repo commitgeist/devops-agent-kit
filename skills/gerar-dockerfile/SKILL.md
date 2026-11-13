@@ -18,7 +18,10 @@ $ARGUMENTS
 2. Use a análise como fonte principal. Se precisar confirmar algo no código
    (exemplo: nome do artefato gerado no build), leia o arquivo, mas não
    altere código da aplicação.
-3. Se a análise tiver perguntas abertas que impedem o Dockerfile (runtime
+3. Se a seção 9 da análise indicar que o destino **não exige container**
+   (exemplo: hospedagem estática), **pare** sem gerar arquivos e informe
+   isso, salvo pedido explícito do usuário na mensagem atual.
+4. Se a análise tiver perguntas abertas que impedem o Dockerfile (runtime
    desconhecido, comando de execução desconhecido), não invente: liste o
    bloqueio e pare.
 

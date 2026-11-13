@@ -1,16 +1,40 @@
 {
   "name": "containerizer",
-  "description": "Gera ou revisa Dockerfile multi-stage e .dockerignore com a skill gerar-dockerfile, a partir de docs/deploy/analise.md.",
+  "description": "Gera ou revisa Dockerfile multi-stage e .dockerignore com a skill gerar-dockerfile, a partir de docs/deploy/analise.md. Não roda quando a análise indica que o destino não exige container.",
   "prompt": "file://./instrucoes/containerizer.md",
-  "tools": ["read", "glob", "grep", "write", "shell"],
-  "allowedTools": ["read", "glob", "grep"],
+  "tools": [
+    "glob",
+    "grep",
+    "read",
+    "shell",
+    "write"
+  ],
+  "allowedTools": [
+    "read",
+    "glob",
+    "grep"
+  ],
   "toolsSettings": {
     "write": {
-      "allowedPaths": ["Dockerfile", ".dockerignore", "**/Dockerfile", "**/.dockerignore", "docs/deploy/**"]
+      "allowedPaths": [
+        "Dockerfile",
+        ".dockerignore",
+        "**/Dockerfile",
+        "**/.dockerignore",
+        "docs/deploy/**"
+      ]
     },
     "shell": {
-      "allowedCommands": ["hadolint .*", "docker build .*"],
-      "deniedCommands": ["docker push.*", "docker login.*", ".*\\bkubectl\\b.*", ".*\\bterraform\\b.*"],
+      "allowedCommands": [
+        "hadolint .*",
+        "docker build .*"
+      ],
+      "deniedCommands": [
+        "docker push.*",
+        "docker login.*",
+        ".*\\bkubectl\\b.*",
+        ".*\\bterraform\\b.*"
+      ],
       "denyByDefault": true
     }
   },
@@ -18,5 +42,64 @@
     "file://~/.kiro/steering/**/*.md",
     "skill://~/.kiro/skills/gerar-dockerfile/SKILL.md",
     "file://~/.kiro/references/checklist-producao.md"
-  ]
+  ],
+  "permissions": {
+    "rules": [
+      {
+        "capability": "shell",
+        "match": [
+          "hadolint *",
+          "docker build *"
+        ],
+        "effect": "allow"
+      },
+      {
+        "capability": "shell",
+        "match": [
+          "docker push*",
+          "docker login*",
+          "*kubectl*",
+          "*terraform*"
+        ],
+        "effect": "deny"
+      },
+      {
+        "capability": "shell",
+        "match": [
+          "*"
+        ],
+        "exclude": [
+          "docker build",
+          "docker build *",
+          "hadolint",
+          "hadolint *"
+        ],
+        "effect": "deny"
+      },
+      {
+        "capability": "fs_write",
+        "match": [
+          "Dockerfile",
+          ".dockerignore",
+          "**/Dockerfile",
+          "**/.dockerignore",
+          "docs/deploy/**"
+        ],
+        "effect": "allow"
+      },
+      {
+        "capability": "fs_read",
+        "effect": "allow"
+      },
+      {
+        "capability": "skill",
+        "effect": "allow"
+      }
+    ]
+  },
+  "kiroUpgrade": {
+    "revision": 3,
+    "fingerprint": "sha256:c5040b21f2ccd97ec971a5b7e946fc15b79a918bb17d557a26a75a6f63dd5559",
+    "source": "sha256:21c577429129037f7b37fd368f48ac85a42d269979fd7b7fefb82cc383c81d91"
+  }
 }

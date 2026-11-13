@@ -9,8 +9,9 @@ da aplicação. Esse arquivo é a entrada das skills `gerar-dockerfile` e
 
 A análise tem sempre as mesmas 10 seções: resumo, stack e runtime, build e
 execução, porta e healthcheck, variáveis (config separada de segredo),
-dependências externas, arquivos existentes, riscos, recomendação de destino
-(AKS ou ECS) e perguntas abertas para o time de dev.
+dependências externas, arquivos existentes, riscos, perfil de execução e recomendação de destino
+(a opção mais simples que atende ao perfil, pela boa prática da cloud) e
+perguntas abertas para o time de dev.
 
 ## Quando usar
 
@@ -23,7 +24,7 @@ dependências externas, arquivos existentes, riscos, recomendação de destino
 ## Entradas
 
 - O repositório da aplicação aberto como workspace no Kiro.
-- Opcional, como texto após o nome da skill: destino desejado (AKS ou ECS),
+- Opcional, como texto após o nome da skill: cloud e destino desejados,
   informações passadas pelo time de dev, restrições conhecidas.
 
 ## Saída

@@ -26,5 +26,8 @@ e cada agente carrega só os arquivos de que precisa, pelo campo
 | `nomenclatura.md` | | | | sim |
 | `checklist-producao.md` | sim | sim | sim | sim |
 
+`nomenclatura.md` e `checklist-producao.md` cobrem AKS, ECS e hospedagem
+estática (AWS e Azure).
+
 Ao criar uma reference nova, adicione-a ao `resources` dos agentes que
 precisam dela e atualize esta tabela.

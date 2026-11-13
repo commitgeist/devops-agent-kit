@@ -1,6 +1,6 @@
 ---
 name: analisar-repo
-description: Analisa o repositório de uma aplicação e gera docs/deploy/analise.md em formato fixo (stack, build, porta, healthcheck, variáveis, dependências, riscos, destino AKS ou ECS e perguntas abertas). Use quando for preparar o deploy de uma aplicação recebida de outro time.
+description: Analisa o repositório de uma aplicação e gera docs/deploy/analise.md em formato fixo (stack, build, porta, healthcheck, variáveis, dependências, riscos, perfil de execução, destino recomendado pela boa prática e perguntas abertas). Use quando for preparar o deploy de uma aplicação recebida de outro time.
 ---
 
 # Skill: analisar-repo
@@ -59,10 +59,36 @@ Siga esta ordem e anote a evidência de cada achado:
    versão fixa, estado em disco local, sessões em memória, jobs agendados
    dentro da app, uploads em disco, migrações de banco na inicialização,
    portas privilegiadas, execução como root.
-9. **Destino:** se o usuário informou AKS ou ECS, use o informado. Caso
-   contrário, recomende com justificativa baseada nos achados e nas
-   references carregadas. Se não houver base suficiente, recomende e marque
-   a decisão como pergunta aberta.
+9. **Perfil de execução:** antes de pensar em plataforma, classifique o que
+   a aplicação **precisa em produção**, com evidência:
+   - Precisa de um processo rodando continuamente? Ou o build gera só
+     arquivos estáticos (HTML, JS, CSS) que qualquer servidor ou CDN
+     entrega?
+   - Tipo de carga: site estático/SPA, front-end com renderização no
+     servidor, API HTTP, worker de fila, job agendado, função orientada a
+     evento, processamento em lote.
+   - Estado (disco local, sessão em memória), conexões persistentes
+     (WebSocket, gRPC), tempo de execução das requisições, padrão de tráfego
+     (contínuo, em picos, esporádico), dependências de rede privada.
+10. **Destino:** recomende a opção de **menor complexidade operacional que
+   atende ao perfil**, seguindo as boas práticas atuais do provedor de cloud.
+   Não parta das plataformas que o time já usa: elas são uma opção a ser
+   avaliada, não a resposta padrão.
+   - Se a aplicação não precisa de processo em execução, a recomendação não
+     deve ser um orquestrador de containers. Container só faz sentido se o
+     perfil exigir.
+   - Se o usuário informou um destino, registre-o. Se a análise mostrar que
+     ele não combina com o perfil (exemplo: orquestrador de containers para
+     conteúdo estático), registre a divergência e a alternativa recomendada,
+     e crie uma pergunta aberta. Não troque o destino por conta própria.
+   - A cloud (AWS, Azure, GCP) vem do usuário ou de evidência no
+     repositório. Se não houver nenhuma das duas, recomende por categoria
+     de serviço e pergunte qual é a cloud.
+   - Cite pelo menos uma alternativa descartada e explique por que ela foi
+     descartada.
+   - Indique se o destino recomendado exige container (isso define se o
+     `containerizer` deve rodar) e se já existe gerador de artefatos no kit
+     para ele.
 
 ## Formato fixo de `docs/deploy/analise.md`
 
@@ -138,9 +164,25 @@ houver conteúdo, escreva "não encontrado" e crie a pergunta correspondente.
 
 ## 9. Recomendação de destino
 
-- Destino: <AKS ou ECS>
-- Origem da decisão: <informado pelo usuário ou recomendação da análise>
-- Justificativa: <motivos baseados nos achados>
+### Perfil de execução
+
+| Item | Valor | Evidência |
+|------|-------|-----------|
+| Tipo de carga | <site estático, SSR, API, worker, job, função, lote> | <arquivo> |
+| Processo em execução em produção | <sim ou não> | <arquivo> |
+| Estado local / sessão | <sim, não ou "não encontrado"> | <arquivo> |
+| Conexões persistentes | <sim, não ou "não encontrado"> | <arquivo> |
+| Padrão de tráfego | <informado, inferido ou "não encontrado"> | <origem> |
+
+### Decisão
+
+- Destino recomendado: <serviço ou combinação de serviços na cloud>
+- Cloud: <AWS, Azure, GCP ou "a definir">
+- Exige container: <sim ou não>
+- Gerador no kit: <AKS, ECS, hospedagem estática ou "não suportado pelo kit ainda">
+- Destino informado pelo usuário: <destino ou "nenhum">; diverge da recomendação: <sim ou não>
+- Justificativa: <por que esta é a opção mais simples que atende ao perfil>
+- Alternativas descartadas: <opção: motivo>, <opção: motivo>
 
 ## 10. Perguntas abertas para o time de dev
 
@@ -151,5 +193,6 @@ houver conteúdo, escreva "não encontrado" e crie a pergunta correspondente.
 
 1. Confirme que o arquivo foi gravado em `docs/deploy/analise.md`.
 2. Mostre no chat um resumo curto: stack, porta, healthcheck, quantidade de
-   configs e segredos, destino recomendado e número de perguntas abertas.
+   configs e segredos, tipo de carga, destino recomendado (com a indicação
+   de se exige container) e número de perguntas abertas.
 3. Não proponha Dockerfile nem manifests nesta etapa.

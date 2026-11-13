@@ -3,7 +3,9 @@
 Kit reutilizável de agentes, skills e regras de DevOps para o **Kiro CLI**.
 É instalado de forma global (links em `~/.kiro/`) e usado dentro de
 repositórios de aplicações entregues por outros times, para preparar o
-deploy em **AKS** (via GitOps) ou **ECS** (via Terraform).
+deploy no destino que a análise recomendar. O kit gera artefatos para
+**AKS** (via GitOps), **ECS** (via Terraform) e **hospedagem estática**
+(armazenamento + CDN na AWS ou no Azure, via Terraform).
 
 O kit contém apenas padrões genéricos, com placeholders no formato
 `<placeholder>`. Nada específico de aplicação, cliente, servidor ou pessoa.
@@ -62,7 +64,7 @@ Resumo da diferença:
               2. subir-app mostra a análise
                  e ESPERA SUA CONFIRMAÇÃO
                            │
-              3. delega em paralelo
+              3. delega (containerizer só se o destino exigir container)
                 ┌──────────┴──────────┐
                 ▼                     ▼
         ┌───────────────┐     ┌──────────────┐
@@ -71,7 +73,7 @@ Resumo da diferença:
         skill                 skill gerar-deploy
         gerar-dockerfile      AKS: deploy/aks/*.yaml
         Dockerfile e          ECS: deploy/ecs/*.tf
-        .dockerignore
+        .dockerignore         estático: deploy/estatico/*.tf
                 │                     │
                 └──────────┬──────────┘
                            ▼
@@ -237,6 +239,7 @@ linkados arquivo por arquivo).
 | Análise de deploy da aplicação (`docs/deploy/analise.md`) | Repositório da aplicação |
 | Dockerfile e `.dockerignore` | Repositório da aplicação |
 | Manifests Kubernetes da aplicação | Gerados em `deploy/aks/` e entregues via PR no `<manifests-repo>` |
+| Terraform de hospedagem estática da aplicação | Gerado em `deploy/estatico/` no repositório da aplicação |
 | Terraform de ECS da aplicação | Gerado em `deploy/ecs/` no repositório da aplicação (ou onde `<padrao-do-time>` definir) |
 | ADRs e decisões técnicas | `docs/adr/` no repositório da aplicação |
 | Pipelines CI/CD da aplicação | Repositório da aplicação |
