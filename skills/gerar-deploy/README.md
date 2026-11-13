@@ -10,6 +10,10 @@ Gera os artefatos de deploy da aplicação a partir de
   no `<manifests-repo>` via GitOps.
 - **ECS:** Terraform com task definition, service, target group, log group
   com retenção e IAM de menor privilégio.
+- **Hospedagem estática:** Terraform de armazenamento privado + CDN, na
+  AWS (S3 + CloudFront com OAC) ou no Azure (Storage Account + Front
+  Door), com cache por tipo de arquivo, fallback SPA quando aplicável e
+  headers de segurança. A publicação do conteúdo fica para o pipeline.
 
 A skill nunca aplica nada e nunca usa a tag `latest`.
 
@@ -22,7 +26,8 @@ A skill nunca aplica nada e nunca usa a tag `latest`.
 ## Entradas
 
 - `docs/deploy/analise.md` (obrigatório).
-- Destino (AKS ou ECS): informado no pedido ou lido da seção 9 da análise.
+- Destino (AKS, ECS ou hospedagem estática com a cloud): informado no
+  pedido ou lido da seção 9 da análise.
 - Opcional: domínio, nomes de segredos, ambiente, restrições de recursos.
 - References carregadas pelo agente `deployer`: `gitops.md`,
   `nomenclatura.md`, `checklist-producao.md`.
@@ -31,7 +36,9 @@ A skill nunca aplica nada e nunca usa a tag `latest`.
 
 - AKS: `deploy/aks/*.yaml`.
 - ECS: `deploy/ecs/*.tf` e `deploy/ecs/terraform.tfvars.example`.
-- Sempre: `docs/deploy/deploy-<aks ou ecs>.md` com segredos esperados,
+- Hospedagem estática: `deploy/estatico/*.tf` e
+  `deploy/estatico/terraform.tfvars.example`.
+- Sempre: `docs/deploy/deploy-<aks, ecs ou estatico>.md` com segredos esperados,
   placeholders pendentes, próximos passos e o checklist de produção.
 
 ## Exemplo de uso
@@ -42,6 +49,10 @@ A skill nunca aplica nada e nunca usa a tag `latest`.
 
 ```
 /gerar-deploy Destino: ECS.
+```
+
+```
+/gerar-deploy Destino: hospedagem estática na AWS.
 ```
 
 ## Exemplo de uso real

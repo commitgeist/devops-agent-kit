@@ -59,6 +59,15 @@ tags = {
 }
 ```
 
+## Hospedagem estática
+
+| Recurso | Padrão |
+|---------|--------|
+| Bucket S3 (globalmente único, minúsculas) | `<padrao-bucket>` |
+| Distribuição CloudFront (comentário/tag) | `<padrao-cloudfront>` |
+| Storage Account (3 a 24 caracteres, só minúsculas e números) | `<padrao-storage-account>` |
+| Front Door profile e endpoint | `<padrao-front-door>` |
+
 ## Segredos no cofre
 
 - Azure Key Vault: `<padrao-nome-segredo-key-vault>` (apenas letras,
@@ -69,5 +78,5 @@ tags = {
 
 - [ ] Ordem e separador dos componentes.
 - [ ] Siglas de ambiente e região.
-- [ ] Padrões de cada objeto Kubernetes e recurso AWS.
+- [ ] Padrões de cada objeto Kubernetes, recurso AWS e recurso Azure.
 - [ ] Labels e tags obrigatórias reais.

@@ -5,8 +5,9 @@ Arquivos: `agents/deployer.json` e `agents/instrucoes/deployer.md`.
 ## Papel
 
 Gerar os artefatos de deploy a partir de `docs/deploy/analise.md`:
-manifests YAML puros para AKS (entregues via PR no `<manifests-repo>`) ou
-Terraform para ECS. Nunca aplica nada.
+manifests YAML puros para AKS (entregues via PR no `<manifests-repo>`),
+Terraform para ECS ou Terraform de hospedagem estática (armazenamento +
+CDN, AWS ou Azure). Nunca aplica nada nem publica conteúdo.
 
 ## Skills que usa
 
@@ -27,7 +28,7 @@ Resources carregados: steering global, `references/gitops.md`,
 ## O que não pode fazer
 
 - `kubectl`, `helm`, `terraform apply`, `terraform destroy`, comandos
-  `aws ecs` ou qualquer deploy.
+  `aws ecs`, `aws s3`, `aws cloudfront`, `az` ou qualquer deploy.
 - Usar `latest`.
 - Colocar valores de segredos em manifests ou Terraform.
 - Alterar código da aplicação ou o Dockerfile.
