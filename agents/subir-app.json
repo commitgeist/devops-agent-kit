@@ -1,0 +1,18 @@
+{
+  "name": "subir-app",
+  "description": "Orquestrador do fluxo de subir uma aplicação: delega a análise ao analyzer, apresenta o resultado e, após confirmação do usuário, delega containerizer e deployer em paralelo.",
+  "prompt": "file://./instrucoes/subir-app.md",
+  "tools": ["read", "glob", "grep", "subagent"],
+  "allowedTools": ["read", "glob", "grep"],
+  "toolsSettings": {
+    "crew": {
+      "availableAgents": ["analyzer", "containerizer", "deployer"],
+      "trustedAgents": ["analyzer"]
+    }
+  },
+  "resources": [
+    "file://~/.kiro/steering/**/*.md",
+    "file://~/.kiro/references/checklist-producao.md"
+  ],
+  "welcomeMessage": "subir-app pronto. Informe o destino (AKS ou ECS), se já souber, e o contexto passado pelo time de dev."
+}

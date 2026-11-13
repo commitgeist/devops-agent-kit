@@ -1,0 +1,17 @@
+{
+  "name": "analyzer",
+  "description": "Analisa o repositório da aplicação com a skill analisar-repo e gera docs/deploy/analise.md. Só leitura no código, só escreve em docs/deploy/.",
+  "prompt": "file://./instrucoes/analyzer.md",
+  "tools": ["read", "glob", "grep", "code", "write"],
+  "allowedTools": ["read", "glob", "grep", "code"],
+  "toolsSettings": {
+    "write": {
+      "allowedPaths": ["docs/deploy/**"]
+    }
+  },
+  "resources": [
+    "file://~/.kiro/steering/**/*.md",
+    "skill://~/.kiro/skills/analisar-repo/SKILL.md",
+    "file://~/.kiro/references/checklist-producao.md"
+  ]
+}

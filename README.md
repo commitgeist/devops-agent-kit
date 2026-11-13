@@ -1,18 +1,94 @@
 # DevOps Agent Kit
 
-Kit reutilizável de agentes e regras de DevOps para o **Kiro (AWS)**. Este kit
-é especificamente voltado ao Kiro com AWS. Contém apenas padrões genéricos —
-nada específico de aplicação, cliente, servidor ou pessoa.
-Qualquer detalhe particular de uma aplicação é gerado dentro do repositório
-dessa aplicação, nunca aqui.
+Kit reutilizável de agentes, skills e regras de DevOps para o **Kiro CLI**.
+É instalado de forma global (links em `~/.kiro/`) e usado dentro de
+repositórios de aplicações entregues por outros times, para preparar o
+deploy em **AKS** (via GitOps) ou **ECS** (via Terraform).
 
-## Propósito
+O kit contém apenas padrões genéricos, com placeholders no formato
+`<placeholder>`. Nada específico de aplicação, cliente, servidor ou pessoa.
+Tudo que é particular de uma aplicação é gerado dentro do repositório dessa
+aplicação, nunca aqui.
 
-Centralizar em um único lugar:
+## Uso rápido
 
-- Regras de comportamento (steering) que se aplicam a qualquer trabalho de DevOps
-- Definições de agentes reutilizáveis
-- Modelos (templates) de documentos padrão
+Na raiz do repositório da aplicação, com o kit já instalado:
+
+```bash
+kiro-cli chat --agent subir-app
+```
+
+```
+@real-fluxo-completo Destino AKS. O dev disse que a app usa Redis e Postgres. Não mandaram .env.example.
+```
+
+O `subir-app` roda a análise, mostra o resultado e as perguntas abertas e
+espera sua confirmação. Depois gera Dockerfile e artefatos de deploy em
+paralelo. Nada é aplicado e nada é commitado.
+
+## O que é cada pasta
+
+| Pasta | O que é | Quando entra em ação | Instalada em |
+|-------|---------|----------------------|--------------|
+| `steering/` | **Regras de comportamento** que valem sempre: proibições, segurança, GitOps, tags imutáveis, segredos no cofre | Em toda conversa (`inclusion: always`) e declarada em todos os agentes | `~/.kiro/steering` |
+| `skills/` | **Procedimentos** passo a passo de uma tarefa (`SKILL.md`), mais um `README.md` para humanos | Sob demanda: o Kiro carrega só nome e descrição e lê o conteúdo quando a tarefa pede, ou quando você chama `/<skill>` | `~/.kiro/skills` |
+| `agents/` | **Agentes**: um JSON por agente (ferramentas, permissões, skills e references que carrega) e as instruções em `agents/instrucoes/` | Quando você inicia `kiro-cli chat --agent <nome>` ou quando o orquestrador delega | `~/.kiro/agents` |
+| `references/` | **Conhecimento do time**: fluxo GitOps, padrão de nomes, checklist de produção. Dados, não procedimentos | Carregados só pelos agentes que declaram o arquivo em `resources` | `~/.kiro/references` |
+| `prompts/` | **Prompts salvos** prontos para invocar com `@<nome>`: `exemplos/` (didáticos) e `reais/` (dia a dia) | Quando você digita `@<nome>` no início da mensagem | um link por arquivo em `~/.kiro/prompts/` |
+| `templates/` | **Modelos de documento** (ADR) | Quando um agente ou você precisa criar o documento | `~/.kiro/templates` |
+| `docs/agents/` | **Documentação humana** de cada agente: papel, skills, permissões, exemplos | Leitura humana, não é carregada pelo Kiro | não é instalada |
+
+Resumo da diferença:
+
+- **Steering** diz o que nunca fazer e como se comportar.
+- **Skill** diz como executar uma tarefa.
+- **Agent** junta ferramentas, permissões, skills e references para um papel.
+- **Reference** guarda os dados e convenções do time que a skill consulta.
+- **Prompt** é o pedido pronto que você digita para disparar o trabalho.
+
+## Fluxo de subir uma app
+
+```
+                    ┌──────────────┐
+  você ───────────► │  subir-app   │  orquestrador (não escreve arquivos)
+                    └──────┬───────┘
+                           │ 1. delega
+                           ▼
+                    ┌──────────────┐
+                    │   analyzer   │  skill analisar-repo
+                    └──────┬───────┘  gera docs/deploy/analise.md
+                           │
+                           ▼
+              2. subir-app mostra a análise
+                 e ESPERA SUA CONFIRMAÇÃO
+                           │
+              3. delega em paralelo
+                ┌──────────┴──────────┐
+                ▼                     ▼
+        ┌───────────────┐     ┌──────────────┐
+        │ containerizer │     │   deployer   │
+        └───────────────┘     └──────────────┘
+        skill                 skill gerar-deploy
+        gerar-dockerfile      AKS: deploy/aks/*.yaml
+        Dockerfile e          ECS: deploy/ecs/*.tf
+        .dockerignore
+                │                     │
+                └──────────┬──────────┘
+                           ▼
+              4. subir-app consolida: arquivos, segredos
+                 esperados no cofre, placeholders e checklist
+```
+
+| Ordem | Agente | Skill | Escreve em | Documentação |
+|-------|--------|-------|------------|--------------|
+| 1 | `subir-app` | nenhuma (delega) | nada | `docs/agents/subir-app.md` |
+| 2 | `analyzer` | `analisar-repo` | `docs/deploy/` | `docs/agents/analyzer.md` |
+| 3 | `containerizer` | `gerar-dockerfile` | `Dockerfile`, `.dockerignore`, `docs/deploy/` | `docs/agents/containerizer.md` |
+| 3 | `deployer` | `gerar-deploy` | `deploy/`, `docs/deploy/` | `docs/agents/deployer.md` |
+
+Cada agente também pode ser usado sozinho, por exemplo
+`kiro-cli chat --agent analyzer`. A delegação usa a ferramenta `subagent`
+do Kiro CLI; os agentes delegados não podem delegar para outros.
 
 ## Entendendo o Kiro (para quem vem do Claude)
 
@@ -107,8 +183,7 @@ agente. Exemplos úteis em DevOps:
 
 ## Instalação
 
-Clone o repositório em qualquer caminho de sua preferência e execute o
-script de instalação:
+Clone o repositório em qualquer caminho e execute o script de instalação:
 
 ```bash
 git clone <repo-url> <caminho-local>
@@ -116,43 +191,83 @@ cd <caminho-local>
 ./install.sh
 ```
 
-O script cria links simbólicos em `~/.kiro/` apontando para as pastas
-`steering`, `agents` e `templates` deste kit. Depois disso o Kiro carrega
-automaticamente as regras e os agentes em qualquer workspace aberto na
-máquina.
+O script:
 
-Se algum dos destinos já existir como arquivo ou diretório comum, o script
-**não** o sobrescreverá: ele exibirá instruções e encerrará sem fazer
-alterações.
+- Cria links simbólicos em `~/.kiro/` para as pastas `steering`, `agents`,
+  `skills`, `references` e `templates`.
+- Cria a pasta `~/.kiro/prompts/` e linka nela cada arquivo de
+  `prompts/exemplos/` e `prompts/reais/`. Isso é necessário porque o Kiro CLI
+  só descobre prompts em `~/.kiro/prompts/*.md`, sem subpastas.
+- Reaponta links simbólicos que apontam para outro caminho ou estão
+  quebrados (por exemplo, se o kit foi movido de pasta).
+- **Não** sobrescreve arquivos ou diretórios comuns: se algum destino já
+  existir e não for link, exibe instruções e encerra sem alterar nada.
+
+### Recomendado: carregar só as skills de cada agente
+
+Por padrão, todo agente customizado do Kiro herda todas as skills de
+`~/.kiro/skills/`, além das que declara. Para que cada agente carregue
+apenas as skills e references do próprio JSON, ligue:
+
+```bash
+kiro-cli settings chat.disableInheritingDefaultResources true
+```
+
+Os agentes deste kit declaram o steering global explicitamente
+(`file://~/.kiro/steering/**/*.md`), então as regras continuam valendo com
+essa opção ligada. Essa configuração é global e afeta também outros agentes
+customizados que você tenha.
 
 ## Atualização
-
-Basta atualizar o repositório local — os links simbólicos continuam válidos:
 
 ```bash
 cd <caminho-local>
 git pull
 ```
 
-Não é necessário executar `install.sh` novamente após um `git pull`.
+Os links de pastas continuam válidos após o `git pull`. Rode `./install.sh`
+de novo apenas quando um **prompt novo** for adicionado (os prompts são
+linkados arquivo por arquivo).
 
 ## O que vai onde
 
 | O que é | Onde fica |
 |---------|-----------|
-| Regras e agentes genéricos de DevOps | **Este repositório** |
-| Manifests Kubernetes da aplicação | Repositório de manifests da aplicação |
+| Regras, skills, agentes, references e prompts genéricos | **Este repositório** |
+| Análise de deploy da aplicação (`docs/deploy/analise.md`) | Repositório da aplicação |
+| Dockerfile e `.dockerignore` | Repositório da aplicação |
+| Manifests Kubernetes da aplicação | Gerados em `deploy/aks/` e entregues via PR no `<manifests-repo>` |
+| Terraform de ECS da aplicação | Gerado em `deploy/ecs/` no repositório da aplicação (ou onde `<padrao-do-time>` definir) |
 | ADRs e decisões técnicas | `docs/adr/` no repositório da aplicação |
 | Pipelines CI/CD da aplicação | Repositório da aplicação |
-| Segredos e configurações de ambiente | Cofre da cloud (Key Vault / Secrets Manager) |
+| Segredos e configurações de ambiente | Cofre da cloud (Key Vault ou Secrets Manager) |
 
 ## Estrutura
 
 ```
 devops-agent-kit/
-├── agents/           # Definições de agentes reutilizáveis
-├── steering/         # Regras de comportamento (inclusion: always)
-│   └── devops-base.md
+├── AGENTS.md                      # Regras de manutenção deste kit
+├── README.md
+├── install.sh                     # Cria os links em ~/.kiro/
+├── agents/                        # Agentes do Kiro CLI
+│   ├── subir-app.json
+│   ├── analyzer.json
+│   ├── containerizer.json
+│   ├── deployer.json
+│   └── instrucoes/                # Prompt de sistema de cada agente
+├── docs/
+│   └── agents/                    # Documentação humana dos agentes
+├── prompts/
+│   ├── README.md                  # Como invocar cada prompt
+│   ├── exemplos/                  # Prompts didáticos (exemplo-*.md)
+│   └── reais/                     # Prompts do dia a dia (real-*.md)
+├── references/                    # Conhecimento do time (completar)
+├── skills/
+│   ├── analisar-repo/             # SKILL.md e README.md
+│   ├── gerar-dockerfile/
+│   └── gerar-deploy/
+├── steering/
+│   └── devops-base.md             # inclusion: always
 └── templates/
     └── adr/
         └── adr-template.md
@@ -161,7 +276,9 @@ devops-agent-kit/
 ## Convenções
 
 - Placeholders seguem o formato `<placeholder>` em todo o kit.
-- Nenhum valor específico de ambiente (URL, namespace, conta de cloud, etc.)
+- Nenhum valor específico de ambiente (URL, namespace, conta de cloud etc.)
   deve aparecer neste repositório.
-- Pull requests que adicionem conteúdo específico de aplicação serão rejeitados.
-# devops-agent-kit
+- Textos em português do Brasil.
+- Pull requests que adicionem conteúdo específico de aplicação serão
+  rejeitados.
+

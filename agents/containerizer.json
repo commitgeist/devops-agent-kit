@@ -1,0 +1,22 @@
+{
+  "name": "containerizer",
+  "description": "Gera ou revisa Dockerfile multi-stage e .dockerignore com a skill gerar-dockerfile, a partir de docs/deploy/analise.md.",
+  "prompt": "file://./instrucoes/containerizer.md",
+  "tools": ["read", "glob", "grep", "write", "shell"],
+  "allowedTools": ["read", "glob", "grep"],
+  "toolsSettings": {
+    "write": {
+      "allowedPaths": ["Dockerfile", ".dockerignore", "**/Dockerfile", "**/.dockerignore", "docs/deploy/**"]
+    },
+    "shell": {
+      "allowedCommands": ["hadolint .*", "docker build .*"],
+      "deniedCommands": ["docker push.*", "docker login.*", ".*\\bkubectl\\b.*", ".*\\bterraform\\b.*"],
+      "denyByDefault": true
+    }
+  },
+  "resources": [
+    "file://~/.kiro/steering/**/*.md",
+    "skill://~/.kiro/skills/gerar-dockerfile/SKILL.md",
+    "file://~/.kiro/references/checklist-producao.md"
+  ]
+}
