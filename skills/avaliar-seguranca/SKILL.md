@@ -13,7 +13,7 @@ $ARGUMENTS
 1. `docs/deploy/analise.md` e `docs/deploy/contexto.md`, se existirem
    (stack, destino, plataforma de CI/CD). Sem eles, levante o mínimo pela
    listagem do repositório e registre que a análise de deploy não existe.
-2. `~/.kiro/references/seguranca/ferramentas.md` (controles por camada) e as
+2. `<kiro>/references/seguranca/ferramentas.md` (controles por camada) e as
    references confirmadas no contexto.
 3. `checklist-producao.md` e a steering.
 

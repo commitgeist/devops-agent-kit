@@ -5,6 +5,10 @@ inclusion: always
 # Regras base de DevOps
 
 Estas regras se aplicam a qualquer trabalho de DevOps neste workspace.
+
+`<kiro>` nas instruções do kit é a pasta `.kiro/` na raiz do repositório
+quando o kit estiver instalado no projeto (`install.sh --projeto`); senão,
+`~/.kiro/`.
 Nos agentes do kit, as permissões já bloqueiam `apply`, `kubectl` e deploy;
 no agente padrão do Kiro, estas regras são o único freio.
 
@@ -42,4 +46,4 @@ no agente padrão do Kiro, estas regras são o único freio.
 
 - Toda decisão específica de uma aplicação deve ser registrada como ADR em
   `docs/adr/` do repositório da aplicação, usando o template em
-  `~/.kiro/templates/adr/adr-template.md`.
+  `<kiro>/templates/adr/adr-template.md`.

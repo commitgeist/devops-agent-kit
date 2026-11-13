@@ -28,7 +28,7 @@ Identifique o escopo pelo pedido. Se estiver vazio, pergunte qual destes:
 ## Como revisar
 
 1. Leia a fonte da verdade do escopo e o índice
-   `~/.kiro/references/README.md`; leia as references que se aplicam.
+   `<kiro>/references/README.md`; leia as references que se aplicam.
 2. Para ADR: extraia de cada ADR a **decisão**, as **consequências** e as
    **restrições** em itens verificáveis. Para cada item, procure a
    implementação e classifique: **cumprido**, **divergente**, **não

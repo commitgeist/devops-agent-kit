@@ -3,7 +3,7 @@
 > Ferramentas e plataformas usadas para entregar esta aplicação. Os
 > agentes do devops-agent-kit leem este arquivo antes de gerar IaC e
 > pipeline. Pode ser preenchido à mão (copiando de
-> `~/.kiro/templates/deploy/contexto-entrega.md`) ou pelo agente `devops` (fluxo `subir-app`), que
+> `<kiro>/templates/deploy/contexto-entrega.md`) ou pelo agente `devops` (fluxo `subir-app`), que
 > detecta o que dá no repositório e pergunta o resto.
 >
 > **Não coloque segredos aqui.** Só nomes, IDs não sensíveis e

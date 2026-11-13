@@ -65,7 +65,7 @@ Siga esta ordem e anote a evidência de cada achado:
    (`*.tf`, `*.bicep`, `Pulumi.yaml`, `cdk.json`, templates
    CloudFormation), manifests já existentes.
 8. **Contexto de entrega:** monte ou atualize `docs/deploy/contexto.md` a
-   partir do template `~/.kiro/templates/deploy/contexto-entrega.md`. Para
+   partir do template `<kiro>/templates/deploy/contexto-entrega.md`. Para
    cada item use, nesta ordem de prioridade:
    1. o que o usuário informou nesta conversa;
    2. o que já estiver em `docs/deploy/contexto.md` (nunca apague um valor

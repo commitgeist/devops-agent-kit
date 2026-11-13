@@ -1,10 +1,15 @@
 #!/usr/bin/env bash
 # Remove de ~/.kiro/ somente os links simbólicos que apontam para este kit.
+#   ./uninstall.sh --projeto <repo>  remove a instalação de <repo>/.kiro/
 # Nada que não seja link para o kit é tocado.
 set -euo pipefail
 
 KIT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 KIRO_DIR="${HOME}/.kiro"
+
+if [[ "${1:-}" == "--projeto" ]]; then
+  exec python3 "${KIT_DIR}/lib/projeto.py" remover "${2:-.}"
+fi
 
 remover_se_do_kit() {
   local link="$1"
