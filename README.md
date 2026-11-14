@@ -108,7 +108,7 @@ kiro-cli chat --agent devops
 ```
 
 ```
-@real-fluxo-completo O time disse que a app usa Postgres e não mandou .env.example.
+/real-fluxo-completo O time disse que a app usa Postgres e não mandou .env.example.
 ```
 
 O `devops`:
@@ -127,47 +127,34 @@ O `devops`:
 Revisão e segurança:
 
 ```bash
-kiro-cli chat --agent reviewer    # @real-revisar-adr | @real-revisar-branch main
-kiro-cli chat --agent secops      # @real-secops-avaliar
+kiro-cli chat --agent reviewer    # /real-revisar-adr | /real-revisar-branch main
+kiro-cli chat --agent secops      # /real-secops-avaliar
 ```
 
 Lista de prompts: `prompts/README.md`.
 
 ## Agentes
 
-| Agente | Tipo | Skill | Escreve em | Shell |
-|--------|------|-------|------------|-------|
-| `devops` | entrada | `subir-app`, `registrar-adr` | `docs/adr/` | não |
-| `reviewer` | entrada | `revisar` (ADR × implementação, análise × código, container, IaC, pipeline, branch) | `docs/review/` | `git` de leitura |
-| `secops` | entrada | `avaliar-seguranca` (segredos, dependências, código, IaC, container, esteira) | `docs/security/` | scanners de leitura, `gitleaks` só com `--redact` |
-| `analyzer` | especialista | `analisar-repo` | `docs/deploy/` | não |
-| `containerizer` | especialista | `gerar-dockerfile` | `Dockerfile`, `.dockerignore`, `docs/deploy/` | `hadolint`, `docker build` |
-| `deployer` | especialista | `gerar-deploy` (Terraform, OpenTofu, Bicep, Pulumi, CDK, CloudFormation; AKS, ECS, estático) | `deploy/`, `docs/deploy/` | `fmt`/`validate` da IaC |
-| `pipeliner` | especialista | `gerar-pipeline` (GitHub Actions, Azure DevOps, Gitea, Bitbucket, GitLab, Jenkins) | arquivos de pipeline, `docs/deploy/` | não |
+| Agente | Tipo | Para quê |
+|--------|------|----------|
+| `devops` | entrada | Orquestra o deploy, delega aos especialistas, registra ADR |
+| `reviewer` | entrada | Revisa ADR × implementação, análise × código, IaC, pipeline, branch |
+| `secops` | entrada | Avalia segurança e propõe estágios de segurança na pipeline |
+| `analyzer`, `containerizer`, `deployer`, `pipeliner` | especialistas | Análise, Dockerfile, IaC e CI/CD, chamados pelo `devops` |
 
-- **Skill** é o procedimento; **agente** é o perfil de permissões que o
-  executa. Os limites de escrita e shell são aplicados pelo Kiro
-  (`permissions.rules`), não dependem do modelo.
-- Especialistas são chamados pelo `devops`, mas funcionam direto com
-  `kiro-cli chat --agent <nome>`. Uma skill chamada fora do seu agente não
-  tem permissão de escrita nos caminhos dela.
-- O `devops` delega a `analyzer`, `reviewer` e `secops` sem pedir aprovação
-  (só leitura/relatório) e a `containerizer`, `deployer` e `pipeliner` com
-  aprovação.
+Permissões, delegação e guardrails de segredos (permissão, hook e
+steering): [docs/como-funciona.md](docs/como-funciona.md).
 
-## Guardrails de segredos
+## Documentação
 
-Três camadas globais, válidas para **qualquer** agente do Kiro, inclusive o
-padrão:
-
-| Camada | Arquivo | O que faz |
-|--------|---------|-----------|
-| Permissão | `settings/permissions.yaml` → `~/.kiro/settings/permissions.yaml` | `deny` de leitura em `.env*` (exceto exemplos), chaves, certificados, `*.tfvars`, `*.tfstate`, credenciais de ferramentas, `.git/config`; `deny` de comandos que imprimem ambiente ou credenciais |
-| Hook | `hooks/guardrail-segredos.json` + `bloquear-segredos.sh` (`PreToolUse`) | Bloqueia os mesmos caminhos em qualquer ferramenta e comandos como `printenv`, `cat .env`, `gh auth token`, `gitleaks` sem `--redact` |
-| Steering | `steering/guardrails-segredos.md` | Levantar só **nomes** de variáveis, nunca repetir segredo colado, nunca contornar bloqueio |
-
-Para descobrir se existe um `.env` versionado, os agentes usam só a
-listagem de nomes, que é liberada.
+| Documento | Conteúdo |
+|-----------|----------|
+| [docs/guia-de-uso.md](docs/guia-de-uso.md) | Passo a passo: instalar, abrir agentes, prompts, teste de delegação em paralelo, personalizar, problemas comuns |
+| [docs/como-funciona.md](docs/como-funciona.md) | Como o kit usa cada recurso do Kiro, fluxo dos agentes, guardrails, modos projeto e global |
+| [mcp/README.md](mcp/README.md) | Catálogo e configuração de MCP |
+| [prompts/README.md](prompts/README.md) | Prompts prontos |
+| [references/README.md](references/README.md) | Índice das references do time |
+| [evals/README.md](evals/README.md) | Testes automáticos dos agentes e prompts (`./testar.sh`) |
 
 ## Onde fica cada coisa
 
@@ -180,7 +167,9 @@ listagem de nomes, que é liberada.
 | `hooks/`, `settings/` guardrails globais | `docs/review/`, `docs/security/` relatórios |
 | `lib/projeto.py` instalação no modo projeto | `.kiro/` (modo projeto, fora do git) |
 | `mcp/` catálogo e script de MCP | |
-| `prompts/reais/` prompts `@real-*` | |
+| `prompts/reais/` prompts `/real-*` | |
+| `docs/` documentação do kit | |
+| `evals/` testes dos agentes | |
 | `templates/` ADR e contexto de entrega | |
 
 Manutenção do kit: `AGENTS.md`.

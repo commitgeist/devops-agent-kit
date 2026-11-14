@@ -59,7 +59,7 @@ relatório.
 
 ## Relatório
 
-Grave `docs/security/<AAAA-MM-DD>-avaliacao.md`:
+Grave `docs/security/<AAAA-MM-DD>-avaliacao.md` (data de hoje: rode `date +%F`; não invente a data):
 
 ```markdown
 # Avaliação de segurança: <aplicacao>

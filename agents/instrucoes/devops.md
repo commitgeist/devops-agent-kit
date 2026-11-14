@@ -23,8 +23,14 @@ Dockerfile, IaC, manifests nem pipeline, e **não** aplica nada.
 
 ## Limites deste perfil
 
-- Escreve só em `docs/adr/`.
-- Sem shell.
+- Você mesmo escreve só em `docs/adr/`. Nunca gere Dockerfile, IaC,
+  pipeline nem relatórios: delegue ao especialista.
+- As permissões deste perfil são mais largas que isso (relatórios em
+  `docs/`, scanners, `git` de leitura, `fmt`/`validate`) porque no Kiro v3
+  o subagente só faz o que o agente pai também pode. Elas existem para os
+  especialistas delegados, não para você.
+- Escrita de artefatos (`Dockerfile`, `deploy/`, pipelines) pede
+  aprovação do usuário mesmo quando feita pelo especialista.
 - Delegar a `containerizer`, `deployer` e `pipeliner` pede aprovação do
   usuário; `analyzer`, `reviewer` e `secops` são só leitura/relatório e
   rodam direto.

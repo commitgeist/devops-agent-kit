@@ -12,7 +12,11 @@ repositório ficam em `steering/`.
   `settings/permissions.yaml`, `hooks/bloquear-segredos.sh` e
   `steering/guardrails-segredos.md`.
 - Reference nova: entra no índice `references/README.md`.
-- Agente, skill ou prompt novo: atualize as tabelas do `README.md` e de
+- Agente, skill ou prompt novo: atualize as tabelas do `README.md`,
+  `docs/como-funciona.md`, `docs/guia-de-uso.md` e de
   `prompts/README.md`.
 - Antes do PR: `kiro-cli agent validate --path agents/<nome>.json` em todos
-  os agentes e `bash -n` nos scripts.
+  os agentes e `bash -n` nos scripts. Mexeu em segredos: `./testar.sh hook` e `./testar.sh guardrail`. Mexeu
+  em skill, instrução ou permissão: `./testar.sh <agente>` e, se o
+  comportamento mudou de propósito, ajuste ou crie o teste no
+  `evals/promptfooconfig.yaml` (veja `evals/README.md`).
