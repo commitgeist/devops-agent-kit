@@ -50,7 +50,8 @@
           "git branch --list*",
           "git branch -a*",
           "git branch -r*",
-          "git branch --show-current*"
+          "git branch --show-current*",
+          "date +%F"
         ],
         "effect": "allow"
       },

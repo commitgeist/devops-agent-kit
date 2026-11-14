@@ -48,7 +48,8 @@
           "semgrep scan*",
           "checkov -d*",
           "checkov --directory*",
-          "hadolint*"
+          "hadolint*",
+          "date +%F"
         ],
         "effect": "allow"
       },

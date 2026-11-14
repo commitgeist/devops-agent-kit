@@ -7,6 +7,7 @@
     "grep",
     "read",
     "write",
+    "shell",
     "@mcp",
     "subagent/analyzer",
     "subagent/containerizer",
@@ -24,15 +25,104 @@
     "skill://~/.kiro/skills/registrar-adr/SKILL.md"
   ],
   "includeMcpJson": true,
-  "welcomeMessage": "devops pronto. Peça para subir/preparar o deploy de uma aplicação, registrar uma decisão (ADR) ou revisar algo. Se já souber, informe cloud, IaC, CI/CD e destino, ou use @real-contexto-entrega.",
+  "welcomeMessage": "devops pronto. Peça para subir/preparar o deploy de uma aplicação, registrar uma decisão (ADR) ou revisar algo. Se já souber, informe cloud, IaC, CI/CD e destino, ou use /real-contexto-entrega.",
   "permissions": {
     "rules": [
       {
         "capability": "fs_write",
         "match": [
-          "docs/adr/**"
+          "docs/adr/**",
+          "docs/deploy/**",
+          "docs/security/**",
+          "docs/review/**"
         ],
         "effect": "allow"
+      },
+      {
+        "capability": "fs_write",
+        "match": [
+          "Dockerfile",
+          ".dockerignore",
+          "**/Dockerfile",
+          "**/.dockerignore",
+          "deploy/**",
+          ".github/workflows/**",
+          ".gitea/workflows/**",
+          "azure-pipelines*.yml",
+          ".azuredevops/**",
+          "bitbucket-pipelines.yml",
+          ".gitlab-ci.yml",
+          "Jenkinsfile"
+        ],
+        "effect": "ask"
+      },
+      {
+        "capability": "shell",
+        "match": [
+          "date +%F",
+          "gitleaks dir*",
+          "gitleaks git*",
+          "trivy fs*",
+          "trivy config*",
+          "semgrep scan*",
+          "checkov -d*",
+          "checkov --directory*",
+          "hadolint*",
+          "git diff*",
+          "git log*",
+          "git show*",
+          "git status*",
+          "git rev-parse*",
+          "git merge-base*",
+          "git branch --list*",
+          "git branch -a*",
+          "git branch -r*",
+          "git branch --show-current*",
+          "terraform fmt*",
+          "terraform validate*",
+          "terraform init -backend=false*",
+          "tofu fmt*",
+          "tofu validate*",
+          "tofu init -backend=false*",
+          "bicep build*",
+          "bicep lint*",
+          "docker build *"
+        ],
+        "effect": "allow"
+      },
+      {
+        "capability": "shell",
+        "match": [
+          "*terraform apply*",
+          "*terraform destroy*",
+          "*terraform import*",
+          "*terraform state*",
+          "*kubectl*",
+          "*helm*",
+          "*aws ecs *",
+          "*aws s3*",
+          "*aws cloudfront*",
+          "az *",
+          "* az *",
+          "*tofu apply*",
+          "*tofu destroy*",
+          "*pulumi up*",
+          "*pulumi destroy*",
+          "*cdk deploy*",
+          "*cdk destroy*",
+          "*aws cloudformation*",
+          "*az deployment*",
+          "docker push*",
+          "docker login*"
+        ],
+        "effect": "deny"
+      },
+      {
+        "capability": "shell",
+        "match": [
+          "*"
+        ],
+        "effect": "deny"
       },
       {
         "capability": "fs_read",

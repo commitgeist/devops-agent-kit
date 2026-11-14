@@ -54,7 +54,7 @@ Identifique o escopo pelo pedido. Se estiver vazio, pergunte qual destes:
 
 ## Relatório
 
-Grave `docs/review/<AAAA-MM-DD>-<escopo>.md`:
+Grave `docs/review/<AAAA-MM-DD>-<escopo>.md` (data de hoje: rode `date +%F`; não invente a data):
 
 ```markdown
 # Revisão: <escopo>
