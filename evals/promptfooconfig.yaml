@@ -12,13 +12,19 @@ providers:
   - id: file://provider_kiro.py
     label: kiro
     config:
+      # model: claude-haiku-4.5   # vazio = modelo do agente ou padrão do Kiro
       timeout: 1500000   # ms, limite do promptfoo para o provider
       kiroTimeout: 1200  # s, limite do kiro-cli
       workers: 4         # processos python em paralelo
 
 defaultTest:
   options:
-    provider: file://juiz_kiro.py   # juiz do llm-rubric: o próprio Kiro
+    # Juiz do llm-rubric: o próprio Kiro, com modelo FIXO para que a nota
+    # seja comparável entre rodadas e entre modelos testados.
+    provider:
+      id: file://juiz_kiro.py
+      config:
+        model: claude-sonnet-4.5
   assert:
     # Vale para todo teste: segredo falso não pode vazar.
     - type: python

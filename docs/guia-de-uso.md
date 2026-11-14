@@ -198,6 +198,7 @@ resultado, em vez de você testar na mão a cada mudança no kit.
 ./testar.sh guardrail   # testes rápidos de segredo
 ./testar.sh             # testes escritos à mão
 ./testar.sh auto        # testes automáticos de todo agente (inclusive os novos)
+./testar.sh modelos "auto claude-haiku-4.5" analyzer   # compara modelos
 ./testar.sh ver         # resultado no navegador
 ```
 

@@ -9,6 +9,8 @@
 #   ./testar.sh hook            só o teste do hook (sem créditos)
 #   ./testar.sh ver             abre o resultado no navegador
 #   ./testar.sh lista           lista os testes e os agentes sem teste à mão
+#   ./testar.sh modelos "auto claude-haiku-4.5" analyzer
+#                               roda os testes do analyzer em cada modelo e compara
 set -euo pipefail
 
 KIT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
@@ -63,10 +65,31 @@ case "${1:-}" in
     exit 0
     ;;
   -h|--help|ajuda)
-    sed -n '2,11p' "$0" | sed 's/^# \{0,1\}//'
+    sed -n '2,13p' "$0" | sed 's/^# \{0,1\}//'
     exit 0
     ;;
 esac
+
+# Comparação de modelos: gera evals/.modelos.yaml com um provider por
+# modelo (mesmos testes, mesmo juiz) e roda o filtro pedido.
+if [[ "${1:-}" == "modelos" ]]; then
+  [[ -n "${2:-}" ]] || { echo 'Uso: ./testar.sh modelos "auto claude-haiku-4.5" [filtro]'; echo; kiro-cli chat --list-models; exit 2; }
+  python3 - "${CONFIG}" "${KIT_DIR}/evals/.modelos.yaml" ${2} <<'PY'
+import re, sys
+base, destino, modelos = sys.argv[1], sys.argv[2], sys.argv[3:]
+texto = open(base, encoding="utf-8").read()
+inicio = texto.index("providers:\n")
+fim = texto.index("\ndefaultTest:")
+provs = ["providers:"]
+for m in modelos:
+    provs += [f"  - id: file://provider_kiro.py", f"    label: {m}", "    config:",
+              f"      model: {m}", "      timeout: 1500000", "      kiroTimeout: 1200", "      workers: 4"]
+open(destino, "w", encoding="utf-8").write(texto[:inicio] + "\n".join(provs) + "\n" + texto[fim:])
+PY
+  CONFIG="${KIT_DIR}/evals/.modelos.yaml"
+  echo "== Comparando modelos: ${2}"
+  shift 2
+fi
 
 rodar_hook=0
 case "${1:-}" in

@@ -163,6 +163,41 @@ Boas práticas:
   arquivos de segredo (o provider cria os falsos). Para testar com as suas
   aplicações, copie uma versão reduzida e anonimizada.
 
+## Comparar modelos
+
+Roda os **mesmos testes** com cada modelo e mostra lado a lado quem acerta
+mais, quanto custa e quanto demora:
+
+```bash
+./testar.sh modelos "auto claude-haiku-4.5 claude-sonnet-4.5" analyzer
+./testar.sh ver
+```
+
+- O primeiro argumento é a lista de modelos, entre aspas. Para ver os
+  disponíveis na sua conta: `./testar.sh modelos` (sem lista) ou
+  `kiro-cli chat --list-models`.
+- O segundo é o filtro de testes, como nos outros comandos (`analyzer`,
+  `auto`, `tudo`...).
+- No `view`, cada modelo vira uma coluna, com a taxa de acerto no topo. O
+  campo de custo mostra **créditos do Kiro**: a tela usa o símbolo `$`, mas
+  o valor é em créditos.
+- O juiz do `llm-rubric` usa sempre o mesmo modelo
+  (`claude-sonnet-4.5`, em `promptfooconfig.yaml`), para a nota ser
+  comparável.
+- Use `-r 3` para não decidir com base numa rodada só:
+  `./testar.sh modelos "auto claude-haiku-4.5" analyzer -r 3`.
+
+O modelo é passado com `kiro-cli chat --model`, que vale para o agente
+testado. **Subagentes:** a doc do Kiro não diz se o subagente delegado
+herda o modelo do `devops` ou usa o do JSON dele. Para comparar modelos,
+prefira testar os agentes direto (`analyzer`, `reviewer`...), não a
+delegação.
+
+Achou o melhor modelo para um agente? Fixe no JSON dele:
+`"model": "claude-haiku-4.5"` em `agents/<agente>.json`. Sem esse campo,
+o agente usa o padrão do Kiro (`auto`). Cuidado: se o modelo fixado não
+existir na conta de quem usa o kit, a primeira mensagem falha.
+
 ## Testar prompts
 
 ### Prompts salvos do kit (`prompts/reais/`)
@@ -218,6 +253,7 @@ compare no `view` qual versão passa mais vezes. Se a v2 ganhar, mova-a para
 | Uma skill, instrução ou permissão | `./testar.sh <agente>` |
 | Um prompt de `prompts/reais/` | `./testar.sh real-` ou uma comparação |
 | Criou um agente | `./testar.sh <agente>` (os automáticos já cobrem) e escreva um teste à mão |
+| Quer saber qual modelo usar num agente | `./testar.sh modelos "auto claude-haiku-4.5" <agente>` |
 | Antes de uma versão nova do kit | `./testar.sh tudo -r 3` |
 
 Um teste que passa 1 de 3 vezes é instável. Quase sempre a instrução está

@@ -159,6 +159,24 @@ linkadas como arquivo, e a cópia não quebra se o kit mudar de lugar. O que
 o kit escreveu fica em `.kiro/.devops-agent-kit`; reinstalar só mexe
 nesses arquivos.
 
+## Modelos
+
+Nenhum agente do kit fixa modelo: todos usam o padrão do Kiro (`auto`, que
+escolhe o modelo por tarefa). Para trocar:
+
+| Onde | Como | Vale para |
+|------|------|-----------|
+| Agente | `"model": "<modelo>"` em `agents/<agente>.json` | Aquele agente, sempre |
+| Sessão | `kiro-cli chat --agent <agente> --model <modelo>` ou `/model` no chat | Só a conversa; passa por cima do agente |
+| Máquina | `kiro-cli settings chat.defaultModel <modelo>` | Agentes sem `model` |
+
+Modelos disponíveis: `kiro-cli chat --list-models`. Antes de fixar um,
+compare com os evals: `./testar.sh modelos "auto claude-haiku-4.5" <agente>`
+([evals](../evals/README.md#comparar-modelos)). O nível de raciocínio
+(`effort`) não tem campo no agente: só `--effort` na sessão ou
+`chat.modelDefaults` nas configurações do Kiro
+([doc](https://kiro.dev/docs/models/effort/)).
+
 ## Recursos do Kiro que o kit não usa
 
 | Recurso | Por que não |
