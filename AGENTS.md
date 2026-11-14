@@ -19,4 +19,4 @@ repositório ficam em `steering/`.
   os agentes e `bash -n` nos scripts. Mexeu em segredos: `./testar.sh hook` e `./testar.sh guardrail`. Mexeu
   em skill, instrução ou permissão: `./testar.sh <agente>` e, se o
   comportamento mudou de propósito, ajuste ou crie o teste no
-  `evals/promptfooconfig.yaml` (veja `evals/README.md`).
+  `evals/testes.yaml` (veja `evals/README.md`).
