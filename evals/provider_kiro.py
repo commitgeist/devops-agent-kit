@@ -6,6 +6,7 @@ roda o pedido no agente com `kiro-cli chat --no-interactive`.
 
 Variáveis do teste (vars):
     pedido      texto enviado ao Kiro. Aceita prompt salvo: "/real-revisar-adr ..."
+    (config.model do provider escolhe o modelo: --model do kiro-cli)
     agente      agente do kit (devops, analyzer, reviewer...). Vazio = padrão do Kiro
     fixture     pasta em evals/fixtures/
     argumentos  (opcional) substitui $ARGUMENTS quando o prompt vem de arquivo
@@ -61,13 +62,15 @@ def salvar_log(nome, saida, erro):
     return caminho
 
 
-def kiro(pedido, cwd, agente=None, timeout=900, trust_tools=None):
+def kiro(pedido, cwd, agente=None, timeout=900, trust_tools=None, modelo=None):
     cmd = ["kiro-cli", "chat", "--no-interactive", "--agent-engine", "v3", "--trust-workspace",
            "--output-format", "stream-json"]
     if agente:
         cmd += ["--agent", agente]
     if trust_tools is not None:
         cmd.append(f"--trust-tools={trust_tools}")
+    if modelo:
+        cmd += ["--model", modelo]
     cmd.append(pedido)
     try:
         r = subprocess.run(cmd, cwd=cwd, capture_output=True, text=True, timeout=timeout)
@@ -114,9 +117,10 @@ def call_api(prompt, options, context):
     cwd = os.path.join(base, "repo")
     try:
         preparar(v["fixture"], cwd)
-        rc, saida, erro = kiro(pedido, cwd, v.get("agente"), int(cfg.get("kiroTimeout", 900)))
+        modelo = cfg.get("model")  # vazio = modelo do agente ou padrão do Kiro
+        rc, saida, erro = kiro(pedido, cwd, v.get("agente"), int(cfg.get("kiroTimeout", 900)), modelo=modelo)
         nome = (context.get("test") or {}).get("description") or v.get("agente") or "teste"
-        log = salvar_log(f"{nome}-r{context.get('repeatIndex', 0)}", saida, erro)
+        log = salvar_log(f"{nome}-{modelo or 'padrao'}-r{context.get('repeatIndex', 0)}", saida, erro)
         texto, ferramentas, creditos, status = ler_eventos(saida)
         if rc == "timeout":
             return {"error": f"kiro-cli passou de {cfg.get('kiroTimeout', 900)}s (config.kiroTimeout). Log: {log}"}
@@ -141,7 +145,11 @@ def call_api(prompt, options, context):
                 "creditos": round(creditos, 3),
                 "vazou_canario": vazou,
                 "log": log,
+                "modelo": modelo or "padrão",
             },
+            # Créditos do Kiro no campo de custo: o promptfoo soma e compara
+            # por modelo (a tela mostra "$", mas a unidade é crédito).
+            "cost": round(creditos, 3),
             "tokenUsage": {"numRequests": 1},
         }
     except Exception as e:  # noqa: BLE001

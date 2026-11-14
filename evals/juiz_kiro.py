@@ -14,7 +14,8 @@ def call_api(prompt, options, context):
     try:
         pedido = ("Você é um avaliador. Não use ferramentas. Responda SOMENTE com o JSON pedido, "
                   "sem cercas de código.\n\n" + prompt)
-        rc, saida, erro = kiro(pedido, vazio, None, 300, trust_tools="")
+        rc, saida, erro = kiro(pedido, vazio, None, 300, trust_tools="",
+                               modelo=options.get("config", {}).get("model"))
         texto = ler_eventos(saida)[0].strip()
         if rc != 0 or not texto:
             return {"error": f"juiz falhou ({rc}): {erro[-300:]}"}

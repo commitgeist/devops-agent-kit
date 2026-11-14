@@ -22,11 +22,15 @@ faz cada agente carregar só o que declara.
 
 ## 3. Instalar no repositório (recomendado)
 
+Clone o kit **fora** da aplicação (uma vez por máquina) e instale a partir
+dele em cada repositório:
+
 ```bash
-git clone <repo-url> <caminho-do-kit>
-cd <repo-da-aplicacao>
+git clone git@github.com:commitgeist/devops-agent-kit.git ~/devops-agent-kit
+
+cd ~/minha-app                                    # repositório da aplicação
 git init                                          # só se ainda não for repositório git
-bash <caminho-do-kit>/install.sh --projeto .
+bash ~/devops-agent-kit/install.sh --projeto .
 ```
 
 - Cria `.kiro/` no repositório com agentes, skills, steering, references,
@@ -35,6 +39,12 @@ bash <caminho-do-kit>/install.sh --projeto .
   no `.gitignore` do time.
 - Rode o `git init` **antes**: fora de um repositório git o instalador só
   avisa, e o `.kiro/` não fica ignorado.
+- **O `.kiro/` não depende do kit:** é cópia, não link. Pode apagar ou
+  mover o `~/devops-agent-kit` que a aplicação continua funcionando. Mas
+  mantenha o clone para atualizar (`git pull` e rodar o `--projeto` de
+  novo) e para rodar os evals.
+- **Não clone o kit dentro da aplicação.** Se clonou, instale com
+  `--projeto` e depois apague a pasta do kit.
 
 Conferir:
 
@@ -42,7 +52,10 @@ Conferir:
 kiro-cli agent list   # devops, reviewer, secops, analyzer, containerizer, deployer, pipeliner (Workspace)
 ```
 
-Quer o kit em qualquer pasta? Use o modo global (`bash <caminho-do-kit>/install.sh`).
+Quer o kit em qualquer pasta? Use o modo global (`bash ~/devops-agent-kit/install.sh`).
+No modo global o `~/.kiro` aponta para a pasta do kit por links: **não apague nem
+mova o kit** sem antes rodar `bash ~/devops-agent-kit/uninstall.sh`, senão os
+links quebram e o hook e as regras globais de segredo deixam de valer sem aviso.
 Diferenças em [como-funciona.md](como-funciona.md#modo-projeto--modo-global).
 
 ## 4. Abrir um agente
@@ -119,6 +132,38 @@ Edite **no kit** (as cópias em `.kiro/` são sobrescritas a cada instalação):
    "Quando usar" e status.
 5. Rode `install.sh --projeto <repo>` de novo para atualizar a cópia.
 
+## Criar um agente
+
+Exemplo: um agente `finops` que avalia custo.
+
+1. **Skill** em `skills/avaliar-custo/SKILL.md`: o procedimento passo a
+   passo (o que ler, o que gerar, onde gravar). Use uma skill existente
+   como modelo.
+2. **Agente** em `agents/finops.json`: copie um parecido (ex.:
+   `secops.json`) e ajuste `name`, `description`, `prompt`, a skill em
+   `resources` e as permissões (`fs_write` só na pasta dele, ex.:
+   `docs/finops/**`; `shell` só com os comandos que ele precisa).
+3. **Instrução** em `agents/instrucoes/finops.md`: papel e limites, no
+   mesmo modelo das outras.
+4. **Se o `devops` for delegar a ele**, no `agents/devops.json`:
+   - `subagent/finops` em `tools`;
+   - uma regra `subagent` (`allow` se só gera relatório, `ask` se gera
+     artefato);
+   - as mesmas permissões de escrita e shell do `finops`. No Kiro v3 o
+     subagente só faz o que o agente pai também pode
+     ([detalhes](como-funciona.md#delegação)).
+5. Valide e reinstale:
+   ```bash
+   kiro-cli agent validate --path agents/finops.json
+   bash ~/devops-agent-kit/install.sh --projeto <repo>
+   ```
+6. **Teste:** `./testar.sh finops`. Os testes automáticos (guardrail e
+   execução da skill dentro das pastas permitidas) já cobrem o agente novo
+   sem você escrever nada. O `testar.sh` avisa que falta o teste de
+   qualidade e imprime um modelo para colar em `evals/testes.yaml`.
+7. Atualize as tabelas de agentes no `README.md` e no
+   `docs/como-funciona.md`.
+
 ## 8. Ligar MCP (opcional)
 
 ```bash
@@ -151,7 +196,9 @@ resultado, em vez de você testar na mão a cada mudança no kit.
 
 ```bash
 ./testar.sh guardrail   # testes rápidos de segredo
-./testar.sh             # todos
+./testar.sh             # testes escritos à mão
+./testar.sh auto        # testes automáticos de todo agente (inclusive os novos)
+./testar.sh modelos "auto claude-haiku-4.5" analyzer   # compara modelos
 ./testar.sh ver         # resultado no navegador
 ```
 

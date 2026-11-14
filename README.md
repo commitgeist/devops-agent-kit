@@ -20,7 +20,7 @@ segredo.
 ## Instalação (5 minutos)
 
 ```bash
-git clone <repo-url> <caminho-local>
+git clone git@github.com:commitgeist/devops-agent-kit.git ~/devops-agent-kit   # fora das aplicações
 kiro-cli settings chat.agentEngine v3                           # obrigatório: agentes no formato v3
 kiro-cli settings chat.disableInheritingDefaultResources true   # cada agente carrega só o que declara
 ```
@@ -29,8 +29,8 @@ Escolha o escopo:
 
 | Modo | Comando | Onde fica | Quando usar |
 |------|---------|-----------|-------------|
-| **Projeto** | `<caminho-local>/install.sh --projeto <repo>` | `<repo>/.kiro/`, fora do git | O kit só naquele repositório |
-| **Global** | `<caminho-local>/install.sh` | `~/.kiro/` | O kit em qualquer repositório que você abrir |
+| **Projeto** (recomendado) | `bash ~/devops-agent-kit/install.sh --projeto <repo>` | `<repo>/.kiro/` (cópia), fora do git | O kit só naquele repositório. Depois de instalar, o clone pode ser apagado |
+| **Global** | `bash ~/devops-agent-kit/install.sh` | `~/.kiro/` (links para o clone) | O kit em qualquer repositório. **Não apague o clone** sem rodar `uninstall.sh` antes |
 
 ### Modo projeto
 
@@ -47,7 +47,7 @@ Escolha o escopo:
   listado em `.kiro/.devops-agent-kit`).
 - **Não edite as cópias:** elas são sobrescritas na próxima atualização.
   Personalize em `references/` no kit.
-- **Remover:** `<caminho-local>/uninstall.sh --projeto <repo>`.
+- **Remover:** `bash ~/devops-agent-kit/uninstall.sh --projeto <repo>`.
 - Os agentes do projeto têm precedência sobre os globais de mesmo nome.
 
 ### Modo global

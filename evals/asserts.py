@@ -70,3 +70,9 @@ def ferramenta_chamada(output, context):
     m = any(re.search(regex, f) for f in _meta(context).get("ferramentas", []))
     ok = (not m) if negar else m
     return _r(ok, f"/{regex}/ nas ferramentas: " + ("achou" if m else "não achou"))
+
+
+def escreveu_algo(output, context):
+    """O agente gravou ao menos um arquivo."""
+    arquivos = list(_meta(context).get("arquivos", {}))
+    return _r(arquivos, "escreveu: " + ", ".join(arquivos) if arquivos else "não gravou nenhum arquivo")
